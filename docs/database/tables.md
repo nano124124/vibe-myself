@@ -557,8 +557,8 @@
 | `CNCL_QTY` | `NUMERIC(3,0)` | Y | `0` | 취소수량 |
 | `EXCH_QTY` | `NUMERIC(3,0)` | Y | `0` | 교환수량 |
 | `RTN_QTY` | `NUMERIC(3,0)` | Y | `0` | 반품수량 |
-| `ORD_GOODS_STAT_CD` | `VARCHAR(10)` | Y | | 주문상품 상태 코드 |
-| `CLAIM_TP_CD` | `VARCHAR(10)` | N | | 클레임 유형 코드 (취소/교환/반품, 최초 row는 NULL) |
+| `ORD_GOODS_STAT_CD` | `VARCHAR(10)` | Y | | 주문상품 상태 코드 (주문/취소/교환/반품) |
+| `DLV_STAT_CD` | `VARCHAR(10)` | N | | 배송 상태 코드 (주문완료→구매확정, 정상 주문만 사용) |
 | `CLAIM_RSN` | `VARCHAR(400)` | N | | 클레임 사유 |
 | `REG_DTM` | `TIMESTAMP` | Y | `now()` | 등록일시 |
 | `REG_ID` | `VARCHAR(50)` | Y | | 등록자 |

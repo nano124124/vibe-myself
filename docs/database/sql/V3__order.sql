@@ -61,7 +61,7 @@ CREATE TABLE OP_ORD_GOODS (
     EXCH_QTY            NUMERIC(3,0)    NOT NULL DEFAULT 0,
     RTN_QTY             NUMERIC(3,0)    NOT NULL DEFAULT 0,
     ORD_GOODS_STAT_CD   VARCHAR(10)     NOT NULL,
-    CLAIM_TP_CD         VARCHAR(10)     NULL,
+    DLV_STAT_CD         VARCHAR(10)     NULL,
     CLAIM_RSN           VARCHAR(400)    NULL,
     REG_DTM             TIMESTAMP       NOT NULL DEFAULT NOW(),
     REG_ID              VARCHAR(50)     NOT NULL,
