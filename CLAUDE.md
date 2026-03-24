@@ -1,5 +1,18 @@
 # Vibe Myself
 
+## 상세 문서
+
+@docs/modules.md
+@docs/backend/structure.md
+@docs/backend/coding-guide.md
+@docs/frontend/structure.md
+@docs/frontend/coding-guide.md
+
+## 최근 작업 기록
+<!-- session-wrap-up 스킬이 아래 줄을 자동 업데이트한다 -->
+
+
+
 쇼핑몰 서비스. 고객용 쇼핑 화면과 관리자 어드민을 포함한다.
 
 ## 프로젝트 구조
@@ -55,6 +68,13 @@ NEXT_PUBLIC_API_URL=http://localhost:8080
 - `(shop)` Route Group → URL 접두사 없음 (`/`, `/products`, `/cart` 등)
 - `admin` → `/admin/...`
 - 어드민 인증: `frontend/proxy.ts` — JWT `access_token` 쿠키 검사, `ROLE_ADMIN` 미보유 시 차단
+
+## 협업 규칙
+
+> **이 규칙은 반드시 지켜야 한다.**
+
+- **커밋/푸시는 사용자가 명시적으로 요청할 때만 진행한다.** 임의로 커밋하거나 push하지 않는다.
+- **지시가 모호하거나 판단이 애매한 경우, 먼저 다시 물어본 후 진행한다.** 추측으로 진행하지 않는다.
 
 ## 백엔드 연동
 
