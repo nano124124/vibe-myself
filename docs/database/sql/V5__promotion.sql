@@ -1,0 +1,88 @@
+-- =============================================
+-- CC 프로모션/이벤트
+-- =============================================
+
+-- 행사 마스터 (쿠폰행사/프로모션행사/사은품행사 통합)
+-- PROM_TP_CD 별 컬럼 사용:
+--   쿠폰:      DC_TP_CD, DC_VAL, MAX_DC_AMT, MIN_ORD_AMT, ISS_TP_CD, AUTO_ISS_COND_CD, VALID_DD or FIX_EXP_DT
+--   프로모션:  DC_TP_CD, DC_VAL, MAX_DC_AMT
+--   사은품:    COND_AMT, GIFT_GOODS_NO, GIFT_QTY
+CREATE TABLE CC_PROM_BASE (
+    PROM_NO             VARCHAR(15)     NOT NULL,
+    PROM_NM             VARCHAR(200)    NOT NULL,
+    PROM_TP_CD          VARCHAR(10)     NOT NULL,
+    START_DT            VARCHAR(8)      NOT NULL,
+    END_DT              VARCHAR(8)      NOT NULL,
+    USE_YN              CHAR(1)         NOT NULL DEFAULT 'Y',
+    DC_TP_CD            VARCHAR(10)     NULL,
+    DC_VAL              NUMERIC(15,2)   NULL,
+    MAX_DC_AMT          NUMERIC(15,2)   NULL,
+    MIN_ORD_AMT         NUMERIC(15,2)   NULL,
+    ISS_TP_CD           VARCHAR(10)     NULL,
+    AUTO_ISS_COND_CD    VARCHAR(10)     NULL,
+    VALID_DD            INTEGER         NULL,
+    FIX_EXP_DT          VARCHAR(8)      NULL,
+    COND_AMT            NUMERIC(15,2)   NULL,
+    GIFT_GOODS_NO       VARCHAR(15)     NULL,
+    GIFT_QTY            NUMERIC(3,0)    NULL,
+    REG_DTM             TIMESTAMP       NOT NULL DEFAULT NOW(),
+    REG_ID              VARCHAR(50)     NOT NULL,
+    MOD_DTM             TIMESTAMP       NOT NULL DEFAULT NOW(),
+    MOD_ID              VARCHAR(50)     NOT NULL,
+    CONSTRAINT PK_CC_PROM_BASE PRIMARY KEY (PROM_NO),
+    CONSTRAINT FK_CC_PROM_BASE_GIFT FOREIGN KEY (GIFT_GOODS_NO) REFERENCES PR_GOODS_BASE (GOODS_NO)
+);
+
+-- 행사 대상 상품 (프로모션/사은품행사 사용, 쿠폰행사는 없을 수 있음)
+CREATE TABLE CC_PROM_GOODS (
+    PROM_NO     VARCHAR(15)     NOT NULL,
+    GOODS_NO    VARCHAR(15)     NOT NULL,
+    REG_DTM     TIMESTAMP       NOT NULL DEFAULT NOW(),
+    REG_ID      VARCHAR(50)     NOT NULL,
+    CONSTRAINT PK_CC_PROM_GOODS PRIMARY KEY (PROM_NO, GOODS_NO),
+    CONSTRAINT FK_CC_PROM_GOODS_PROM FOREIGN KEY (PROM_NO) REFERENCES CC_PROM_BASE (PROM_NO)
+);
+
+-- 쿠폰 발급 (쿠폰행사 유형만 사용)
+CREATE TABLE CC_CPN_ISS (
+    CPN_ISS_NO  VARCHAR(15)     NOT NULL,
+    PROM_NO     VARCHAR(15)     NOT NULL,
+    MBR_NO      VARCHAR(15)     NOT NULL,
+    EXP_DT      VARCHAR(8)      NOT NULL,
+    USE_YN      CHAR(1)         NOT NULL DEFAULT 'N',
+    USE_DTM     TIMESTAMP       NULL,
+    ORD_NO      VARCHAR(15)     NULL,
+    REG_DTM     TIMESTAMP       NOT NULL DEFAULT NOW(),
+    REG_ID      VARCHAR(50)     NOT NULL,
+    MOD_DTM     TIMESTAMP       NOT NULL DEFAULT NOW(),
+    MOD_ID      VARCHAR(50)     NOT NULL,
+    CONSTRAINT PK_CC_CPN_ISS PRIMARY KEY (CPN_ISS_NO),
+    CONSTRAINT FK_CC_CPN_ISS_PROM FOREIGN KEY (PROM_NO) REFERENCES CC_PROM_BASE (PROM_NO)
+);
+
+-- 이벤트/기획전
+CREATE TABLE CC_EVT_BASE (
+    EVT_NO      VARCHAR(15)     NOT NULL,
+    EVT_NM      VARCHAR(200)    NOT NULL,
+    EVT_TP_CD   VARCHAR(10)     NOT NULL,
+    CONTS       TEXT            NULL,
+    START_DT    VARCHAR(8)      NOT NULL,
+    END_DT      VARCHAR(8)      NOT NULL,
+    DISP_YN     CHAR(1)         NOT NULL DEFAULT 'N',
+    REG_DTM     TIMESTAMP       NOT NULL DEFAULT NOW(),
+    REG_ID      VARCHAR(50)     NOT NULL,
+    MOD_DTM     TIMESTAMP       NOT NULL DEFAULT NOW(),
+    MOD_ID      VARCHAR(50)     NOT NULL,
+    CONSTRAINT PK_CC_EVT_BASE PRIMARY KEY (EVT_NO)
+);
+
+-- 이벤트 적용 상품
+CREATE TABLE CC_EVT_GOODS (
+    EVT_NO      VARCHAR(15)     NOT NULL,
+    GOODS_NO    VARCHAR(15)     NOT NULL,
+    SORT_ORD    INTEGER         NOT NULL DEFAULT 0,
+    REG_DTM     TIMESTAMP       NOT NULL DEFAULT NOW(),
+    REG_ID      VARCHAR(50)     NOT NULL,
+    CONSTRAINT PK_CC_EVT_GOODS PRIMARY KEY (EVT_NO, GOODS_NO),
+    CONSTRAINT FK_CC_EVT_GOODS_EVT FOREIGN KEY (EVT_NO) REFERENCES CC_EVT_BASE (EVT_NO)
+);

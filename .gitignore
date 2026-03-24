@@ -7,3 +7,6 @@
 
 # Superpowers
 .superpowers/
+
+# MCP (DB 접속 정보 포함)
+.mcp.json
