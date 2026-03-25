@@ -8,5 +8,8 @@
 # Superpowers
 .superpowers/
 
+# Git worktrees
+.worktrees/
+
 # MCP (DB 접속 정보 포함)
 .mcp.json
