@@ -1,0 +1,16 @@
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "STDIN=$(cat); FILE=$(echo \"$STDIN\" | jq -r '.tool_input.file_path // empty'); if echo \"$FILE\" | grep -qE 'components/.*Form[^/]*\\.tsx$'; then echo \"{\\\"hookSpecificOutput\\\":{\\\"hookEventName\\\":\\\"PostToolUse\\\",\\\"additionalContext\\\":\\\"폼 컴포넌트 파일($FILE)이 저장되었습니다. form-validation-tests 스킬을 즉시 실행하여 Vitest + Playwright 테스트를 생성하고 실행하세요.\\\"}}\"; fi",
+            "statusMessage": "폼 컴포넌트 감지 중..."
+          }
+        ]
+      }
+    ]
+  }
+}
