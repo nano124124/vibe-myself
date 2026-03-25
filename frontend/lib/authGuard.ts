@@ -1,7 +1,7 @@
 const ADMIN_ROLES = ['ROLE_ADMIN', 'ROLE_SUPER']
 
 export const getRedirectPath = (token: string | null, pathname: string): string | null => {
-  if (!token) return '/admin'
+  if (!token) return pathname === '/admin' ? null : '/admin'
 
   try {
     const payload = JSON.parse(atob(token.split('.')[1]))
@@ -11,6 +11,6 @@ export const getRedirectPath = (token: string | null, pathname: string): string 
 
     return null
   } catch {
-    return '/admin'
+    return pathname === '/admin' ? null : '/admin'
   }
 }

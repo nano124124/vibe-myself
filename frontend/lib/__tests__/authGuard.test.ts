@@ -2,12 +2,20 @@ import { describe, it, expect } from 'vitest'
 import { getRedirectPath } from '../authGuard'
 
 describe('getRedirectPath', () => {
-  it('토큰 없음 → /admin 반환', () => {
+  it('토큰 없음 + 보호된 경로 → /admin 반환', () => {
     expect(getRedirectPath(null, '/admin/dashboard')).toBe('/admin')
   })
 
-  it('토큰 파싱 실패 → /admin 반환', () => {
+  it('토큰 없음 + /admin → null (로그인 페이지 통과)', () => {
+    expect(getRedirectPath(null, '/admin')).toBeNull()
+  })
+
+  it('토큰 파싱 실패 + 보호된 경로 → /admin 반환', () => {
     expect(getRedirectPath('invalid.token.here', '/admin/dashboard')).toBe('/admin')
+  })
+
+  it('토큰 파싱 실패 + /admin → null (로그인 페이지 통과)', () => {
+    expect(getRedirectPath('invalid.token.here', '/admin')).toBeNull()
   })
 
   it('ROLE_USER → /admin 반환', () => {
