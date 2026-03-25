@@ -162,7 +162,7 @@ if (payload.role !== 'ROLE_ADMIN') return '/'
 // 수정 후
 const ADMIN_ROLES = ['ROLE_ADMIN', 'ROLE_SUPER']
 
-export function getRedirectPath(token: string | null, pathname: string): string | null {
+export const getRedirectPath = (token: string | null, pathname: string): string | null => {
   // 토큰 없음 → 로그인 페이지
   if (!token) return '/admin'
 
