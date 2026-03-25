@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.vibemyself.mapper.member.MemberMapper">
+
+    <resultMap id="memberResultMap" type="com.vibemyself.model.member.Member">
+        <id property="mbrNo" column="MBR_NO"/>
+        <result property="loginId" column="LOGIN_ID"/>
+        <result property="loginPwd" column="LOGIN_PWD"/>
+        <result property="mbrNm" column="MBR_NM"/>
+        <result property="email" column="EMAIL"/>
+        <result property="grdCd" column="GRD_CD"/>
+        <result property="mbrStatCd" column="MBR_STAT_CD"/>
+    </resultMap>
+
+    <select id="selectByLoginId" parameterType="String" resultMap="memberResultMap">
+        SELECT MBR_NO, LOGIN_ID, LOGIN_PWD, MBR_NM, EMAIL, GRD_CD, MBR_STAT_CD
+        FROM ET_MBR_BASE
+        WHERE LOGIN_ID = #{loginId}
+    </select>
+
+    <select id="selectByMbrNo" parameterType="String" resultMap="memberResultMap">
+        SELECT MBR_NO, LOGIN_ID, LOGIN_PWD, MBR_NM, EMAIL, GRD_CD, MBR_STAT_CD
+        FROM ET_MBR_BASE
+        WHERE MBR_NO = #{mbrNo}
+    </select>
+
+</mapper>
