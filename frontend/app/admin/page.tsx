@@ -1,3 +1,5 @@
-export default function AdminDashboardPage() {
-  return <div>AdminDashboardPage</div>
+import AdminLoginForm from '@/components/system/AdminLoginForm'
+
+export default function AdminLoginPage() {
+  return <AdminLoginForm />
 }
