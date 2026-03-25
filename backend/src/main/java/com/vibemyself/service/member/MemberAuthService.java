@@ -7,6 +7,10 @@ import com.vibemyself.common.redis.RedisService;
 import com.vibemyself.common.security.LoginUser;
 import com.vibemyself.common.util.CookieUtils;
 import com.vibemyself.dto.member.LoginMemberRequest;
+import com.vibemyself.enums.MemberStatus;
+import java.util.Objects;
+import com.vibemyself.enums.RoleCode;
+import com.vibemyself.enums.UserType;
 import com.vibemyself.global.exception.UnauthorizedException;
 import com.vibemyself.mapper.member.MemberMapper;
 import com.vibemyself.model.member.Member;
@@ -22,7 +26,6 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class MemberAuthService {
 
-    private static final String ACTIVE_STATUS = "NORMAL";
     private static final long REFRESH_TTL = 14 * 24 * 3600L;
     private static final long SESSION_TTL = 3600L;
 
@@ -37,16 +40,16 @@ public class MemberAuthService {
         if (member == null || !passwordEncoder.matches(request.getPassword(), member.getLoginPwd())) {
             throw new UnauthorizedException("아이디 또는 비밀번호가 올바르지 않습니다.");
         }
-        if (!ACTIVE_STATUS.equals(member.getMbrStatCd())) {
+        if (!MemberStatus.NORMAL.getCode().equals(member.getMbrStatCd())) {
             throw new UnauthorizedException("사용할 수 없는 계정입니다.");
         }
 
         String id = member.getMbrNo();
-        String accessToken = jwtProvider.generateAccessToken(id, "ROLE_USER", "member");
-        String refreshToken = jwtProvider.generateRefreshToken(id, "member");
+        String accessToken = jwtProvider.generateAccessToken(id, RoleCode.USER.toSpringRole(), UserType.MEMBER.getValue());
+        String refreshToken = jwtProvider.generateRefreshToken(id, UserType.MEMBER.getValue());
 
         redisService.save("refresh:member:" + id, refreshToken, REFRESH_TTL);
-        saveSession("member", id, toLoginUser(member));
+        saveSession(UserType.MEMBER.getValue(), id, toLoginUser(member));
         setCookies(response, accessToken, refreshToken);
     }
 
@@ -55,8 +58,8 @@ public class MemberAuthService {
         if (refreshToken != null && jwtProvider.isValid(refreshToken)) {
             Claims claims = jwtProvider.parseClaims(refreshToken);
             String id = claims.getSubject();
-            redisService.delete("refresh:member:" + id);
-            redisService.delete("session:member:" + id);
+            redisService.delete("refresh:" + UserType.MEMBER.getValue() + ":" + id);
+            redisService.delete("session:" + UserType.MEMBER.getValue() + ":" + id);
         }
         clearCookies(response);
     }
@@ -69,27 +72,27 @@ public class MemberAuthService {
 
         Claims claims = jwtProvider.parseClaims(refreshToken);
         String id = claims.getSubject();
-        String stored = redisService.get("refresh:member:" + id);
-        if (!refreshToken.equals(stored)) {
+        String stored = redisService.get("refresh:" + UserType.MEMBER.getValue() + ":" + id);
+        if (!Objects.equals(refreshToken, stored)) {
             throw new UnauthorizedException("유효하지 않은 refresh token입니다.");
         }
 
         Member member = memberMapper.selectByMbrNo(id);
-        if (member == null || !ACTIVE_STATUS.equals(member.getMbrStatCd())) {
+        if (member == null || !MemberStatus.NORMAL.getCode().equals(member.getMbrStatCd())) {
             throw new UnauthorizedException("사용할 수 없는 계정입니다.");
         }
 
-        String newAccessToken = jwtProvider.generateAccessToken(id, "ROLE_USER", "member");
-        String newRefreshToken = jwtProvider.generateRefreshToken(id, "member");
+        String newAccessToken = jwtProvider.generateAccessToken(id, RoleCode.USER.toSpringRole(), UserType.MEMBER.getValue());
+        String newRefreshToken = jwtProvider.generateRefreshToken(id, UserType.MEMBER.getValue());
 
-        redisService.save("refresh:member:" + id, newRefreshToken, REFRESH_TTL);
-        saveSession("member", id, toLoginUser(member));
+        redisService.save("refresh:" + UserType.MEMBER.getValue() + ":" + id, newRefreshToken, REFRESH_TTL);
+        saveSession(UserType.MEMBER.getValue(), id, toLoginUser(member));
         setCookies(response, newAccessToken, newRefreshToken);
     }
 
     public LoginUser loadUser(String id) {
         Member member = memberMapper.selectByMbrNo(id);
-        if (member == null || !ACTIVE_STATUS.equals(member.getMbrStatCd())) return null;
+        if (member == null || !MemberStatus.NORMAL.getCode().equals(member.getMbrStatCd())) return null;
         return toLoginUser(member);
     }
 
@@ -98,8 +101,8 @@ public class MemberAuthService {
                 .id(member.getMbrNo())
                 .loginId(member.getLoginId())
                 .name(member.getMbrNm())
-                .type("member")
-                .role("ROLE_USER")
+                .type(UserType.MEMBER.getValue())
+                .role(RoleCode.USER.toSpringRole())
                 .grade(member.getGrdCd())
                 .build();
     }

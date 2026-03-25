@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.vibemyself.common.jwt.JwtAuthFilter;
 import com.vibemyself.common.jwt.JwtProvider;
 import com.vibemyself.common.redis.RedisService;
+import com.vibemyself.enums.RoleCode;
 import com.vibemyself.service.member.MemberAuthService;
 import com.vibemyself.service.system.AdminAuthService;
 import lombok.RequiredArgsConstructor;
@@ -48,8 +49,8 @@ public class SecurityConfig {
                     "/api/admin/system/logout",
                     "/api/admin/system/token/refresh"
                 ).permitAll()
-                .requestMatchers("/api/admin/**").hasAnyRole("ADMIN", "SUPER")
-                .requestMatchers("/api/member/**", "/api/cart/**", "/api/order/**").hasRole("USER")
+                .requestMatchers("/api/admin/**").hasAnyRole(RoleCode.ADMIN.getCode(), RoleCode.SUPER.getCode())
+                .requestMatchers("/api/member/**", "/api/cart/**", "/api/order/**").hasRole(RoleCode.USER.getCode())
                 .anyRequest().authenticated()
             )
             .addFilterBefore(jwtAuthFilter(), UsernamePasswordAuthenticationFilter.class);

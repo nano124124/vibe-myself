@@ -7,6 +7,9 @@ import com.vibemyself.common.redis.RedisService;
 import com.vibemyself.common.security.LoginUser;
 import com.vibemyself.common.util.CookieUtils;
 import com.vibemyself.dto.system.LoginAdminRequest;
+import com.vibemyself.enums.RoleCode;
+import java.util.Objects;
+import com.vibemyself.enums.UserType;
 import com.vibemyself.global.exception.UnauthorizedException;
 import com.vibemyself.mapper.system.AdminMapper;
 import com.vibemyself.model.system.Admin;
@@ -41,12 +44,12 @@ public class AdminAuthService {
         }
 
         String id = admin.getLoginId();
-        String role = toSpringRole(admin.getRoleCd());
-        String accessToken = jwtProvider.generateAccessToken(id, role, "admin");
-        String refreshToken = jwtProvider.generateRefreshToken(id, "admin");
+        String role = RoleCode.from(admin.getRoleCd()).toSpringRole();
+        String accessToken = jwtProvider.generateAccessToken(id, role, UserType.ADMIN.getValue());
+        String refreshToken = jwtProvider.generateRefreshToken(id, UserType.ADMIN.getValue());
 
-        redisService.save("refresh:admin:" + id, refreshToken, REFRESH_TTL);
-        saveSession("admin", id, toLoginUser(admin));
+        redisService.save("refresh:" + UserType.ADMIN.getValue() + ":" + id, refreshToken, REFRESH_TTL);
+        saveSession(UserType.ADMIN.getValue(), id, toLoginUser(admin));
         setCookies(response, accessToken, refreshToken);
     }
 
@@ -55,8 +58,8 @@ public class AdminAuthService {
         if (refreshToken != null && jwtProvider.isValid(refreshToken)) {
             Claims claims = jwtProvider.parseClaims(refreshToken);
             String id = claims.getSubject();
-            redisService.delete("refresh:admin:" + id);
-            redisService.delete("session:admin:" + id);
+            redisService.delete("refresh:" + UserType.ADMIN.getValue() + ":" + id);
+            redisService.delete("session:" + UserType.ADMIN.getValue() + ":" + id);
         }
         clearCookies(response);
     }
@@ -69,8 +72,8 @@ public class AdminAuthService {
 
         Claims claims = jwtProvider.parseClaims(refreshToken);
         String id = claims.getSubject();
-        String stored = redisService.get("refresh:admin:" + id);
-        if (!refreshToken.equals(stored)) {
+        String stored = redisService.get("refresh:" + UserType.ADMIN.getValue() + ":" + id);
+        if (!Objects.equals(refreshToken, stored)) {
             throw new UnauthorizedException("유효하지 않은 refresh token입니다.");
         }
 
@@ -79,12 +82,12 @@ public class AdminAuthService {
             throw new UnauthorizedException("사용할 수 없는 계정입니다.");
         }
 
-        String role = toSpringRole(admin.getRoleCd());
-        String newAccessToken = jwtProvider.generateAccessToken(id, role, "admin");
-        String newRefreshToken = jwtProvider.generateRefreshToken(id, "admin");
+        String role = RoleCode.from(admin.getRoleCd()).toSpringRole();
+        String newAccessToken = jwtProvider.generateAccessToken(id, role, UserType.ADMIN.getValue());
+        String newRefreshToken = jwtProvider.generateRefreshToken(id, UserType.ADMIN.getValue());
 
-        redisService.save("refresh:admin:" + id, newRefreshToken, REFRESH_TTL);
-        saveSession("admin", id, toLoginUser(admin));
+        redisService.save("refresh:" + UserType.ADMIN.getValue() + ":" + id, newRefreshToken, REFRESH_TTL);
+        saveSession(UserType.ADMIN.getValue(), id, toLoginUser(admin));
         setCookies(response, newAccessToken, newRefreshToken);
     }
 
@@ -99,14 +102,10 @@ public class AdminAuthService {
                 .id(admin.getLoginId())
                 .loginId(admin.getLoginId())
                 .name(admin.getAdminNm())
-                .type("admin")
-                .role(toSpringRole(admin.getRoleCd()))
+                .type(UserType.ADMIN.getValue())
+                .role(RoleCode.from(admin.getRoleCd()).toSpringRole())
                 .grade(null)
                 .build();
-    }
-
-    private String toSpringRole(String roleCd) {
-        return "SUPER".equals(roleCd) ? "ROLE_SUPER" : "ROLE_ADMIN";
     }
 
     private void saveSession(String type, String id, LoginUser loginUser) {
