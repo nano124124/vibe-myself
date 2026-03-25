@@ -2,10 +2,6 @@ spring:
   profiles:
     active: local
   datasource:
-    # log4jdbc DriverSpy를 통해 실제 실행 SQL과 바인드 파라미터를 함께 로깅한다.
-    url: jdbc:log4jdbc:postgresql://aws-1-ap-northeast-2.pooler.supabase.com:6543/postgres?sslmode=require&prepareThreshold=0
-    username: postgres.ekmmmbmsxwiprqzkrsmd
-    password: Rjqnrdl12@@
     driver-class-name: org.postgresql.Driver
     hikari:
       initialization-fail-timeout: 0
@@ -21,3 +17,8 @@ mybatis:
 
 server:
   port: 8080
+
+jwt:
+  secret: ${JWT_SECRET}
+  access-expiration: 3600000
+  refresh-expiration: 1209600000
