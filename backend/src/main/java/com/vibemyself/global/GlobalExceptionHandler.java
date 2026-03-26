@@ -17,6 +17,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(AppException.class)
     public ResponseEntity<ApiResponse<Void>> handleApp(AppException e) {
+        log.warn("[AppException] code={}, message={}", e.getErrorCode(), e.getMessage());
         return ResponseEntity.status(e.getErrorCode().getStatus())
                 .body(ApiResponse.fail(e.getMessage()));
     }
@@ -26,12 +27,13 @@ public class GlobalExceptionHandler {
         String message = e.getBindingResult().getFieldErrors().stream()
                 .map(FieldError::getDefaultMessage)
                 .collect(Collectors.joining(", "));
+        log.warn("[Validation] message={}", message);
         return ResponseEntity.badRequest().body(ApiResponse.fail(message));
     }
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiResponse<Void>> handleException(Exception e) {
-        log.error("Unhandled exception", e);
+        log.error("[UnhandledException]", e);
         return ResponseEntity.internalServerError().body(ApiResponse.fail("서버 오류가 발생했습니다."));
     }
 }
