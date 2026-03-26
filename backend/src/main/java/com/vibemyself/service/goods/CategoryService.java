@@ -3,7 +3,8 @@ package com.vibemyself.service.goods;
 import com.vibemyself.dto.goods.CategoryResponse;
 import com.vibemyself.dto.goods.CreateCategoryRequest;
 import com.vibemyself.dto.goods.UpdateCategoryRequest;
-import com.vibemyself.global.exception.CategoryNotFoundException;
+import com.vibemyself.global.exception.AppException;
+import com.vibemyself.global.exception.ErrorCode;
 import com.vibemyself.mapper.goods.CategoryMapper;
 import com.vibemyself.entity.PrCtgBase;
 import lombok.RequiredArgsConstructor;
@@ -42,7 +43,7 @@ public class CategoryService {
     @Transactional
     public void updateCategory(Long ctgNo, UpdateCategoryRequest request) {
         if (categoryMapper.selectByCtgNo(ctgNo) == null) {
-            throw new CategoryNotFoundException();
+            throw new AppException(ErrorCode.CATEGORY_NOT_FOUND);
         }
         PrCtgBase category = PrCtgBase.builder()
                 .ctgNo(ctgNo)
@@ -59,10 +60,10 @@ public class CategoryService {
         }
         PrCtgBase parent = categoryMapper.selectByCtgNo(upCtgNo);
         if (parent == null) {
-            throw new IllegalArgumentException("상위 카테고리가 존재하지 않습니다.");
+            throw new AppException(ErrorCode.CATEGORY_PARENT_NOT_FOUND);
         }
         if ("3".equals(parent.getCtgLvl())) {
-            throw new IllegalArgumentException("3단계 이하로는 카테고리를 등록할 수 없습니다.");
+            throw new AppException(ErrorCode.CATEGORY_MAX_DEPTH_EXCEEDED);
         }
         return String.valueOf(Integer.parseInt(parent.getCtgLvl()) + 1);
     }

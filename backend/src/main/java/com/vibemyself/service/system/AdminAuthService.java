@@ -10,7 +10,8 @@ import com.vibemyself.dto.system.LoginAdminRequest;
 import com.vibemyself.enums.RoleCode;
 import java.util.Objects;
 import com.vibemyself.enums.UserType;
-import com.vibemyself.global.exception.UnauthorizedException;
+import com.vibemyself.global.exception.AppException;
+import com.vibemyself.global.exception.ErrorCode;
 import com.vibemyself.entity.StAdminBase;
 import com.vibemyself.mapper.system.AdminMapper;
 import io.jsonwebtoken.Claims;
@@ -37,10 +38,10 @@ public class AdminAuthService {
     public void login(LoginAdminRequest request, HttpServletResponse response) {
         StAdminBase admin = adminMapper.selectByLoginId(request.getLoginId());
         if (admin == null || !passwordEncoder.matches(request.getPassword(), admin.getLoginPwd())) {
-            throw new UnauthorizedException("아이디 또는 비밀번호가 올바르지 않습니다.");
+            throw new AppException(ErrorCode.INVALID_CREDENTIALS);
         }
         if (!"Y".equals(admin.getUseYn())) {
-            throw new UnauthorizedException("사용할 수 없는 계정입니다.");
+            throw new AppException(ErrorCode.ACCOUNT_DISABLED);
         }
 
         String id = admin.getLoginId();
@@ -67,19 +68,19 @@ public class AdminAuthService {
     public void refresh(HttpServletRequest request, HttpServletResponse response) {
         String refreshToken = CookieUtils.resolveToken(request, "refresh_token");
         if (refreshToken == null || !jwtProvider.isValid(refreshToken)) {
-            throw new UnauthorizedException("유효하지 않은 refresh token입니다.");
+            throw new AppException(ErrorCode.INVALID_REFRESH_TOKEN);
         }
 
         Claims claims = jwtProvider.parseClaims(refreshToken);
         String id = claims.getSubject();
         String stored = redisService.get("refresh:" + UserType.ADMIN.getValue() + ":" + id);
         if (!Objects.equals(refreshToken, stored)) {
-            throw new UnauthorizedException("유효하지 않은 refresh token입니다.");
+            throw new AppException(ErrorCode.INVALID_REFRESH_TOKEN);
         }
 
         StAdminBase admin = adminMapper.selectByLoginId(id);
         if (admin == null || !"Y".equals(admin.getUseYn())) {
-            throw new UnauthorizedException("사용할 수 없는 계정입니다.");
+            throw new AppException(ErrorCode.ACCOUNT_DISABLED);
         }
 
         String role = RoleCode.from(admin.getRoleCd()).toSpringRole();

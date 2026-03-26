@@ -5,7 +5,7 @@ import com.vibemyself.common.jwt.JwtProvider;
 import com.vibemyself.common.redis.RedisService;
 import com.vibemyself.common.security.LoginUser;
 import com.vibemyself.dto.system.LoginAdminRequest;
-import com.vibemyself.global.exception.UnauthorizedException;
+import com.vibemyself.global.exception.AppException;
 import com.vibemyself.entity.StAdminBase;
 import com.vibemyself.mapper.system.AdminMapper;
 import org.junit.jupiter.api.Test;
@@ -42,7 +42,7 @@ class AdminAuthServiceTest {
         assertThatThrownBy(() ->
                 adminAuthService.login(new LoginAdminRequest("unknown", "pw"),
                         new MockHttpServletResponse()))
-                .isInstanceOf(UnauthorizedException.class);
+                .isInstanceOf(AppException.class);
     }
 
     @Test
@@ -54,7 +54,7 @@ class AdminAuthServiceTest {
         assertThatThrownBy(() ->
                 adminAuthService.login(new LoginAdminRequest("admin02", "pw"),
                         new MockHttpServletResponse()))
-                .isInstanceOf(UnauthorizedException.class);
+                .isInstanceOf(AppException.class);
     }
 
     @Test
@@ -116,6 +116,6 @@ class AdminAuthServiceTest {
 
         assertThatThrownBy(() ->
                 adminAuthService.refresh(request, new MockHttpServletResponse()))
-                .isInstanceOf(UnauthorizedException.class);
+                .isInstanceOf(AppException.class);
     }
 }

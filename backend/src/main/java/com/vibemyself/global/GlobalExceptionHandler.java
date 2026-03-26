@@ -1,7 +1,7 @@
 package com.vibemyself.global;
 
 import com.vibemyself.common.response.ApiResponse;
-import com.vibemyself.global.exception.BusinessException;
+import com.vibemyself.global.exception.AppException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
@@ -15,14 +15,10 @@ import java.util.stream.Collectors;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler(BusinessException.class)
-    public ResponseEntity<ApiResponse<Void>> handleBusiness(BusinessException e) {
-        return ResponseEntity.status(e.getStatusCode()).body(ApiResponse.fail(e.getMessage()));
-    }
-
-    @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<ApiResponse<Void>> handleIllegalArgument(IllegalArgumentException e) {
-        return ResponseEntity.badRequest().body(ApiResponse.fail(e.getMessage()));
+    @ExceptionHandler(AppException.class)
+    public ResponseEntity<ApiResponse<Void>> handleApp(AppException e) {
+        return ResponseEntity.status(e.getErrorCode().getStatus())
+                .body(ApiResponse.fail(e.getMessage()));
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)

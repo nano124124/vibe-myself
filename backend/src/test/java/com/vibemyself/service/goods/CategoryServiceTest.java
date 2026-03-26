@@ -3,7 +3,8 @@ package com.vibemyself.service.goods;
 import com.vibemyself.dto.goods.CategoryResponse;
 import com.vibemyself.dto.goods.CreateCategoryRequest;
 import com.vibemyself.dto.goods.UpdateCategoryRequest;
-import com.vibemyself.global.exception.CategoryNotFoundException;
+import com.vibemyself.global.exception.AppException;
+import com.vibemyself.global.exception.ErrorCode;
 import com.vibemyself.mapper.goods.CategoryMapper;
 import com.vibemyself.entity.PrCtgBase;
 import org.junit.jupiter.api.Test;
@@ -81,8 +82,8 @@ class CategoryServiceTest {
         CreateCategoryRequest request = new CreateCategoryRequest(999L, "하위", 1);
         given(categoryMapper.selectByCtgNo(999L)).willReturn(null);
         assertThatThrownBy(() -> categoryService.createCategory(request))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("상위 카테고리");
+                .isInstanceOf(AppException.class)
+                .hasFieldOrPropertyWithValue("errorCode", ErrorCode.CATEGORY_PARENT_NOT_FOUND);
     }
 
     @Test
@@ -91,8 +92,8 @@ class CategoryServiceTest {
         given(categoryMapper.selectByCtgNo(111L))
                 .willReturn(prCtgBase(111L, 11L, "3", "반팔", 1));
         assertThatThrownBy(() -> categoryService.createCategory(request))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("3단계");
+                .isInstanceOf(AppException.class)
+                .hasFieldOrPropertyWithValue("errorCode", ErrorCode.CATEGORY_MAX_DEPTH_EXCEEDED);
     }
 
     @Test
@@ -125,7 +126,8 @@ class CategoryServiceTest {
         given(categoryMapper.selectByCtgNo(999L)).willReturn(null);
         UpdateCategoryRequest request = new UpdateCategoryRequest("수정명", "Y", 1);
         assertThatThrownBy(() -> categoryService.updateCategory(999L, request))
-                .isInstanceOf(CategoryNotFoundException.class);
+                .isInstanceOf(AppException.class)
+                .hasFieldOrPropertyWithValue("errorCode", ErrorCode.CATEGORY_NOT_FOUND);
     }
 
     @Test

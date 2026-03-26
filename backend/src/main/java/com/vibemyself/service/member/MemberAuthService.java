@@ -11,7 +11,8 @@ import com.vibemyself.enums.MemberStatus;
 import java.util.Objects;
 import com.vibemyself.enums.RoleCode;
 import com.vibemyself.enums.UserType;
-import com.vibemyself.global.exception.UnauthorizedException;
+import com.vibemyself.global.exception.AppException;
+import com.vibemyself.global.exception.ErrorCode;
 import com.vibemyself.entity.EtMbrBase;
 import com.vibemyself.mapper.member.MemberMapper;
 import io.jsonwebtoken.Claims;
@@ -38,10 +39,10 @@ public class MemberAuthService {
     public void login(LoginMemberRequest request, HttpServletResponse response) {
         EtMbrBase member = memberMapper.selectByLoginId(request.getLoginId());
         if (member == null || !passwordEncoder.matches(request.getPassword(), member.getLoginPwd())) {
-            throw new UnauthorizedException("아이디 또는 비밀번호가 올바르지 않습니다.");
+            throw new AppException(ErrorCode.INVALID_CREDENTIALS);
         }
         if (!MemberStatus.NORMAL.getCode().equals(member.getMbrStatCd())) {
-            throw new UnauthorizedException("사용할 수 없는 계정입니다.");
+            throw new AppException(ErrorCode.ACCOUNT_DISABLED);
         }
 
         String id = member.getMbrNo();
@@ -67,19 +68,19 @@ public class MemberAuthService {
     public void refresh(HttpServletRequest request, HttpServletResponse response) {
         String refreshToken = CookieUtils.resolveToken(request, "refresh_token");
         if (refreshToken == null || !jwtProvider.isValid(refreshToken)) {
-            throw new UnauthorizedException("유효하지 않은 refresh token입니다.");
+            throw new AppException(ErrorCode.INVALID_REFRESH_TOKEN);
         }
 
         Claims claims = jwtProvider.parseClaims(refreshToken);
         String id = claims.getSubject();
         String stored = redisService.get("refresh:" + UserType.MEMBER.getValue() + ":" + id);
         if (!Objects.equals(refreshToken, stored)) {
-            throw new UnauthorizedException("유효하지 않은 refresh token입니다.");
+            throw new AppException(ErrorCode.INVALID_REFRESH_TOKEN);
         }
 
         EtMbrBase member = memberMapper.selectByMbrNo(id);
         if (member == null || !MemberStatus.NORMAL.getCode().equals(member.getMbrStatCd())) {
-            throw new UnauthorizedException("사용할 수 없는 계정입니다.");
+            throw new AppException(ErrorCode.ACCOUNT_DISABLED);
         }
 
         String newAccessToken = jwtProvider.generateAccessToken(id, RoleCode.USER.toSpringRole(), UserType.MEMBER.getValue());

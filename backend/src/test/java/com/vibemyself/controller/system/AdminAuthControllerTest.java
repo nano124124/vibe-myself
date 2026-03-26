@@ -4,7 +4,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.vibemyself.common.jwt.JwtProvider;
 import com.vibemyself.common.redis.RedisService;
 import com.vibemyself.dto.system.LoginAdminRequest;
-import com.vibemyself.global.exception.UnauthorizedException;
+import com.vibemyself.global.exception.AppException;
+import com.vibemyself.global.exception.ErrorCode;
 import com.vibemyself.service.member.MemberAuthService;
 import com.vibemyself.service.system.AdminAuthService;
 import org.junit.jupiter.api.Test;
@@ -43,7 +44,7 @@ class AdminAuthControllerTest {
 
     @Test
     void login_인증실패_401반환() throws Exception {
-        willThrow(new UnauthorizedException("아이디 또는 비밀번호가 올바르지 않습니다."))
+        willThrow(new AppException(ErrorCode.INVALID_CREDENTIALS))
                 .given(adminAuthService).login(any(), any());
 
         mockMvc.perform(post("/api/admin/system/login")

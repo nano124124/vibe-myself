@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.vibemyself.common.jwt.JwtProvider;
 import com.vibemyself.common.redis.RedisService;
 import com.vibemyself.dto.member.LoginMemberRequest;
-import com.vibemyself.global.exception.UnauthorizedException;
+import com.vibemyself.global.exception.AppException;
 import com.vibemyself.entity.EtMbrBase;
 import com.vibemyself.mapper.member.MemberMapper;
 import org.junit.jupiter.api.Test;
@@ -41,7 +41,7 @@ class MemberAuthServiceTest {
         assertThatThrownBy(() ->
                 memberAuthService.login(new LoginMemberRequest("unknown@test.com", "pw"),
                         new MockHttpServletResponse()))
-                .isInstanceOf(UnauthorizedException.class);
+                .isInstanceOf(AppException.class);
     }
 
     @Test
@@ -51,7 +51,7 @@ class MemberAuthServiceTest {
         assertThatThrownBy(() ->
                 memberAuthService.login(new LoginMemberRequest("user@test.com", "wrong"),
                         new MockHttpServletResponse()))
-                .isInstanceOf(UnauthorizedException.class);
+                .isInstanceOf(AppException.class);
     }
 
     @Test
@@ -64,7 +64,7 @@ class MemberAuthServiceTest {
         assertThatThrownBy(() ->
                 memberAuthService.login(new LoginMemberRequest("user2@test.com", "pw"),
                         new MockHttpServletResponse()))
-                .isInstanceOf(UnauthorizedException.class);
+                .isInstanceOf(AppException.class);
     }
 
     @Test
@@ -112,7 +112,7 @@ class MemberAuthServiceTest {
     void refresh_refreshToken없음_UnauthorizedException() {
         assertThatThrownBy(() ->
                 memberAuthService.refresh(new MockHttpServletRequest(), new MockHttpServletResponse()))
-                .isInstanceOf(UnauthorizedException.class);
+                .isInstanceOf(AppException.class);
     }
 
     @Test
@@ -127,7 +127,7 @@ class MemberAuthServiceTest {
 
         assertThatThrownBy(() ->
                 memberAuthService.refresh(request, new MockHttpServletResponse()))
-                .isInstanceOf(UnauthorizedException.class);
+                .isInstanceOf(AppException.class);
     }
 
     @Test

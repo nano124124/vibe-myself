@@ -5,7 +5,8 @@ import com.vibemyself.dto.goods.CategoryResponse;
 import com.vibemyself.dto.goods.CreateCategoryRequest;
 import com.vibemyself.dto.goods.UpdateCategoryRequest;
 import com.vibemyself.entity.PrCtgBase;
-import com.vibemyself.global.exception.CategoryNotFoundException;
+import com.vibemyself.global.exception.AppException;
+import com.vibemyself.global.exception.ErrorCode;
 import com.vibemyself.service.goods.CategoryService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -66,7 +67,7 @@ class CategoryControllerTest {
     void createCategory_부모없음_400() throws Exception {
         CreateCategoryRequest request = new CreateCategoryRequest(999L, "하위", 1);
         given(categoryService.createCategory(any()))
-                .willThrow(new IllegalArgumentException("상위 카테고리가 존재하지 않습니다."));
+                .willThrow(new AppException(ErrorCode.CATEGORY_PARENT_NOT_FOUND));
 
         mockMvc.perform(post("/api/admin/goods/categories")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -98,7 +99,7 @@ class CategoryControllerTest {
     @Test
     void updateCategory_존재하지않음_404() throws Exception {
         UpdateCategoryRequest request = new UpdateCategoryRequest("없는카테", "Y", 1);
-        willThrow(new CategoryNotFoundException()).given(categoryService).updateCategory(eq(999L), any());
+        willThrow(new AppException(ErrorCode.CATEGORY_NOT_FOUND)).given(categoryService).updateCategory(eq(999L), any());
 
         mockMvc.perform(put("/api/admin/goods/categories/999")
                         .contentType(MediaType.APPLICATION_JSON)
