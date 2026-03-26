@@ -47,6 +47,7 @@ public class MenuService {
         }
 
         roots.sort(Comparator.comparingInt(MenuResponse::getSortOrd));
+        // 현재 2단계까지만 정렬. 3단계 이상 추가 시 재귀 정렬로 전환 필요
         roots.forEach(root -> root.getChildren().sort(Comparator.comparingInt(MenuResponse::getSortOrd)));
 
         return roots;
