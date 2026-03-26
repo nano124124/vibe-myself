@@ -17,7 +17,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(AppException.class)
     public ResponseEntity<ApiResponse<Void>> handleApp(AppException e) {
-        log.warn("[AppException] code={}, message={}", e.getErrorCode(), e.getMessage());
+        log.error("[AppException] code={}, message={}", e.getErrorCode(), e.getMessage(), e);
         return ResponseEntity.status(e.getErrorCode().getStatus())
                 .body(ApiResponse.fail(e.getMessage()));
     }
@@ -27,7 +27,7 @@ public class GlobalExceptionHandler {
         String message = e.getBindingResult().getFieldErrors().stream()
                 .map(FieldError::getDefaultMessage)
                 .collect(Collectors.joining(", "));
-        log.warn("[Validation] message={}", message);
+        log.error("[Validation] message={}", message, e);
         return ResponseEntity.badRequest().body(ApiResponse.fail(message));
     }
 
