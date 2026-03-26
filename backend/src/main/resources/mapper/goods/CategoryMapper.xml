@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.vibemyself.mapper.goods.CategoryMapper">
+
+    <resultMap id="categoryResultMap" type="com.vibemyself.entity.PrCtgBase">
+        <id     property="ctgNo"    column="CTG_NO"/>
+        <result property="upCtgNo"  column="UP_CTG_NO"/>
+        <result property="ctgLvl"   column="CTG_LVL"/>
+        <result property="ctgNm"    column="CTG_NM"/>
+        <result property="sortOrd"  column="SORT_ORD"/>
+        <result property="useYn"    column="USE_YN"/>
+    </resultMap>
+
+    <select id="selectAll" resultMap="categoryResultMap">
+        WITH RECURSIVE ctg_tree AS (
+            SELECT CTG_NO, UP_CTG_NO, CTG_LVL, CTG_NM, SORT_ORD, USE_YN
+            FROM PR_CTG_BASE
+            WHERE UP_CTG_NO IS NULL
+            UNION ALL
+            SELECT c.CTG_NO, c.UP_CTG_NO, c.CTG_LVL, c.CTG_NM, c.SORT_ORD, c.USE_YN
+            FROM PR_CTG_BASE c
+            INNER JOIN ctg_tree ct ON c.UP_CTG_NO = ct.CTG_NO
+        )
+        SELECT CTG_NO, UP_CTG_NO, CTG_LVL, CTG_NM, SORT_ORD, USE_YN
+        FROM ctg_tree
+        ORDER BY SORT_ORD
+    </select>
+
+    <select id="selectByCtgNo" resultMap="categoryResultMap">
+        SELECT CTG_NO, UP_CTG_NO, CTG_LVL, CTG_NM, SORT_ORD, USE_YN
+        FROM PR_CTG_BASE
+        WHERE CTG_NO = #{ctgNo}
+    </select>
+
+    <insert id="insertCategory" useGeneratedKeys="true" keyProperty="ctgNo" keyColumn="CTG_NO">
+        INSERT INTO PR_CTG_BASE (UP_CTG_NO, CTG_LVL, CTG_NM, SORT_ORD, USE_YN, REG_ID, MOD_ID)
+        VALUES (#{upCtgNo}, #{ctgLvl}, #{ctgNm}, #{sortOrd}, 'Y', 'ADMIN', 'ADMIN')
+    </insert>
+
+    <update id="updateCategory">
+        UPDATE PR_CTG_BASE
+        SET CTG_NM   = #{ctgNm},
+            USE_YN   = #{useYn},
+            SORT_ORD = #{sortOrd},
+            MOD_DTM  = NOW(),
+            MOD_ID   = 'ADMIN'
+        WHERE CTG_NO = #{ctgNo}
+    </update>
+
+</mapper>
