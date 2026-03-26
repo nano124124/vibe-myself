@@ -1,50 +1,101 @@
-import { describe, it, expect } from 'vitest'
+// frontend/lib/__tests__/authGuard.test.ts
+import { describe, it, expect, vi, beforeEach, beforeAll } from 'vitest'
+import { jwtVerify } from 'jose'
 import { getRedirectPath } from '../authGuard'
 
+vi.mock('jose', () => ({
+  jwtVerify: vi.fn(),
+}))
+
+const mockJwtVerify = vi.mocked(jwtVerify)
+
+beforeAll(() => {
+  process.env.JWT_SECRET = 'dGVzdHNlY3JldGtleWZvcnRlc3Rpbmc='
+})
+
+beforeEach(() => {
+  vi.clearAllMocks()
+})
+
 describe('getRedirectPath', () => {
-  it('토큰 없음 + 보호된 경로 → /admin 반환', () => {
-    expect(getRedirectPath(null, '/admin/dashboard')).toBe('/admin')
+  describe('토큰 없음', () => {
+    it('/admin 접근 시 null 반환 (로그인 페이지 허용)', async () => {
+      const result = await getRedirectPath(null, '/admin')
+      expect(result).toBeNull()
+    })
+
+    it('/admin/dashboard 접근 시 /admin 리다이렉트', async () => {
+      const result = await getRedirectPath(null, '/admin/dashboard')
+      expect(result).toBe('/admin')
+    })
   })
 
-  it('토큰 없음 + /admin → null (로그인 페이지 통과)', () => {
-    expect(getRedirectPath(null, '/admin')).toBeNull()
+  describe('유효한 토큰 + ROLE_ADMIN', () => {
+    beforeEach(() => {
+      mockJwtVerify.mockResolvedValue({ payload: { role: 'ROLE_ADMIN' } } as never)
+    })
+
+    it('/admin 접근 시 /admin/dashboard 리다이렉트 (이미 로그인됨)', async () => {
+      const result = await getRedirectPath('valid.token.here', '/admin')
+      expect(result).toBe('/admin/dashboard')
+    })
+
+    it('/admin/dashboard 접근 시 null 반환 (통과)', async () => {
+      const result = await getRedirectPath('valid.token.here', '/admin/dashboard')
+      expect(result).toBeNull()
+    })
+
+    it('/admin/goods 접근 시 null 반환 (통과)', async () => {
+      const result = await getRedirectPath('valid.token.here', '/admin/goods')
+      expect(result).toBeNull()
+    })
   })
 
-  it('토큰 파싱 실패 + 보호된 경로 → /admin 반환', () => {
-    expect(getRedirectPath('invalid.token.here', '/admin/dashboard')).toBe('/admin')
+  describe('유효한 토큰 + ROLE_SUPER', () => {
+    beforeEach(() => {
+      mockJwtVerify.mockResolvedValue({ payload: { role: 'ROLE_SUPER' } } as never)
+    })
+
+    it('/admin 접근 시 /admin/dashboard 리다이렉트 (이미 로그인됨)', async () => {
+      const result = await getRedirectPath('valid.token.here', '/admin')
+      expect(result).toBe('/admin/dashboard')
+    })
+
+    it('/admin/dashboard 접근 시 null 반환 (통과)', async () => {
+      const result = await getRedirectPath('valid.token.here', '/admin/dashboard')
+      expect(result).toBeNull()
+    })
   })
 
-  it('토큰 파싱 실패 + /admin → null (로그인 페이지 통과)', () => {
-    expect(getRedirectPath('invalid.token.here', '/admin')).toBeNull()
+  describe('유효한 토큰 + 어드민 아닌 role', () => {
+    beforeEach(() => {
+      mockJwtVerify.mockResolvedValue({ payload: { role: 'ROLE_USER' } } as never)
+    })
+
+    it('/admin/dashboard 접근 시 / 리다이렉트', async () => {
+      const result = await getRedirectPath('valid.token.here', '/admin/dashboard')
+      expect(result).toBe('/')
+    })
+
+    it('/admin 접근 시 / 리다이렉트', async () => {
+      const result = await getRedirectPath('valid.token.here', '/admin')
+      expect(result).toBe('/')
+    })
   })
 
-  it('ROLE_USER → /admin 반환', () => {
-    const payload = btoa(JSON.stringify({ role: 'ROLE_USER' }))
-    const token = `h.${payload}.s`
-    expect(getRedirectPath(token, '/admin/dashboard')).toBe('/admin')
-  })
+  describe('유효하지 않은 토큰 (서명 검증 실패)', () => {
+    beforeEach(() => {
+      mockJwtVerify.mockRejectedValue(new Error('JWSSignatureVerificationFailed'))
+    })
 
-  it('ROLE_ADMIN + /admin 이외 경로 → null (통과)', () => {
-    const payload = btoa(JSON.stringify({ role: 'ROLE_ADMIN' }))
-    const token = `h.${payload}.s`
-    expect(getRedirectPath(token, '/admin/dashboard')).toBeNull()
-  })
+    it('/admin 접근 시 null 반환 (로그인 페이지 허용)', async () => {
+      const result = await getRedirectPath('invalid.token', '/admin')
+      expect(result).toBeNull()
+    })
 
-  it('ROLE_SUPER + /admin 이외 경로 → null (통과)', () => {
-    const payload = btoa(JSON.stringify({ role: 'ROLE_SUPER' }))
-    const token = `h.${payload}.s`
-    expect(getRedirectPath(token, '/admin/orders')).toBeNull()
-  })
-
-  it('ROLE_ADMIN + /admin 접근 → /admin/dashboard 반환 (이미 로그인)', () => {
-    const payload = btoa(JSON.stringify({ role: 'ROLE_ADMIN' }))
-    const token = `h.${payload}.s`
-    expect(getRedirectPath(token, '/admin')).toBe('/admin/dashboard')
-  })
-
-  it('ROLE_SUPER + /admin 접근 → /admin/dashboard 반환 (이미 로그인)', () => {
-    const payload = btoa(JSON.stringify({ role: 'ROLE_SUPER' }))
-    const token = `h.${payload}.s`
-    expect(getRedirectPath(token, '/admin')).toBe('/admin/dashboard')
+    it('/admin/dashboard 접근 시 /admin 리다이렉트', async () => {
+      const result = await getRedirectPath('invalid.token', '/admin/dashboard')
+      expect(result).toBe('/admin')
+    })
   })
 })
