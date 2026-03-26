@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getRedirectPath } from '@/lib/authGuard'
 
-export function proxy(request: NextRequest) {
+export const proxy = (request: NextRequest) => {
   const token = request.cookies.get('access_token')?.value ?? null
-  const redirectPath = getRedirectPath(token)
+  const redirectPath = getRedirectPath(token, request.nextUrl.pathname)
 
   if (redirectPath) {
     return NextResponse.redirect(new URL(redirectPath, request.url))
@@ -13,5 +13,5 @@ export function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/admin/:path*'],
+  matcher: ['/admin', '/admin/:path*'],
 }
