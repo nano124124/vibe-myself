@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.vibemyself.mapper.system.MenuMapper">
+
+    <resultMap id="menuResultMap" type="com.vibemyself.model.system.Menu">
+        <id property="menuNo" column="MENU_NO"/>
+        <result property="parentMenuNo" column="PARENT_MENU_NO"/>
+        <result property="menuNm" column="MENU_NM"/>
+        <result property="menuUrl" column="MENU_URL"/>
+        <result property="sortOrd" column="SORT_ORD"/>
+    </resultMap>
+
+    <select id="selectAllActive" resultMap="menuResultMap">
+        SELECT MENU_NO, PARENT_MENU_NO, MENU_NM, MENU_URL, SORT_ORD
+        FROM ST_MENU_BASE
+        WHERE USE_YN = 'Y'
+        ORDER BY SORT_ORD
+    </select>
+
+</mapper>
