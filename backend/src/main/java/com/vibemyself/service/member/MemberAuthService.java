@@ -12,8 +12,8 @@ import java.util.Objects;
 import com.vibemyself.enums.RoleCode;
 import com.vibemyself.enums.UserType;
 import com.vibemyself.global.exception.UnauthorizedException;
+import com.vibemyself.entity.EtMbrBase;
 import com.vibemyself.mapper.member.MemberMapper;
-import com.vibemyself.model.member.Member;
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -36,7 +36,7 @@ public class MemberAuthService {
     private final ObjectMapper objectMapper;
 
     public void login(LoginMemberRequest request, HttpServletResponse response) {
-        Member member = memberMapper.selectByLoginId(request.getLoginId());
+        EtMbrBase member = memberMapper.selectByLoginId(request.getLoginId());
         if (member == null || !passwordEncoder.matches(request.getPassword(), member.getLoginPwd())) {
             throw new UnauthorizedException("아이디 또는 비밀번호가 올바르지 않습니다.");
         }
@@ -77,7 +77,7 @@ public class MemberAuthService {
             throw new UnauthorizedException("유효하지 않은 refresh token입니다.");
         }
 
-        Member member = memberMapper.selectByMbrNo(id);
+        EtMbrBase member = memberMapper.selectByMbrNo(id);
         if (member == null || !MemberStatus.NORMAL.getCode().equals(member.getMbrStatCd())) {
             throw new UnauthorizedException("사용할 수 없는 계정입니다.");
         }
@@ -91,12 +91,12 @@ public class MemberAuthService {
     }
 
     public LoginUser loadUser(String id) {
-        Member member = memberMapper.selectByMbrNo(id);
+        EtMbrBase member = memberMapper.selectByMbrNo(id);
         if (member == null || !MemberStatus.NORMAL.getCode().equals(member.getMbrStatCd())) return null;
         return toLoginUser(member);
     }
 
-    private LoginUser toLoginUser(Member member) {
+    private LoginUser toLoginUser(EtMbrBase member) {
         return LoginUser.builder()
                 .id(member.getMbrNo())
                 .loginId(member.getLoginId())

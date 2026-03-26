@@ -3,7 +3,7 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.vibemyself.mapper.system.AdminMapper">
 
-    <resultMap id="adminResultMap" type="com.vibemyself.model.system.Admin">
+    <resultMap id="adminResultMap" type="com.vibemyself.entity.StAdminBase">
         <id property="loginId" column="LOGIN_ID"/>
         <result property="loginPwd" column="LOGIN_PWD"/>
         <result property="adminNm" column="ADMIN_NM"/>

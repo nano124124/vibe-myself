@@ -1,4 +1,4 @@
-package com.vibemyself.model.system;
+package com.vibemyself.entity;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class Menu {
+public class StMenuBase {
     private Long menuNo;
     private Long parentMenuNo;
     private String menuNm;

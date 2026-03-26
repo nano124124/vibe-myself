@@ -1,4 +1,4 @@
-package com.vibemyself.model.member;
+package com.vibemyself.entity;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class Member {
+public class EtMbrBase {
     private String mbrNo;
     private String loginId;
     private String loginPwd;

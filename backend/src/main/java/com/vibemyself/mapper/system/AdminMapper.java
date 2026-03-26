@@ -1,9 +1,9 @@
 package com.vibemyself.mapper.system;
 
-import com.vibemyself.model.system.Admin;
+import com.vibemyself.entity.StAdminBase;
 import org.apache.ibatis.annotations.Mapper;
 
 @Mapper
 public interface AdminMapper {
-    Admin selectByLoginId(String loginId);
+    StAdminBase selectByLoginId(String loginId);
 }

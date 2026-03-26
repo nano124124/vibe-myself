@@ -6,8 +6,8 @@ import com.vibemyself.common.redis.RedisService;
 import com.vibemyself.common.security.LoginUser;
 import com.vibemyself.dto.system.LoginAdminRequest;
 import com.vibemyself.global.exception.UnauthorizedException;
+import com.vibemyself.entity.StAdminBase;
 import com.vibemyself.mapper.system.AdminMapper;
-import com.vibemyself.model.system.Admin;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -30,8 +30,8 @@ class AdminAuthServiceTest {
     @Mock ObjectMapper objectMapper;
     @InjectMocks AdminAuthService adminAuthService;
 
-    private Admin activeAdmin(String roleCd) {
-        return Admin.builder()
+    private StAdminBase activeAdmin(String roleCd) {
+        return StAdminBase.builder()
                 .loginId("admin01").loginPwd("encoded")
                 .adminNm("관리자1").roleCd(roleCd).useYn("Y").build();
     }
@@ -47,7 +47,7 @@ class AdminAuthServiceTest {
 
     @Test
     void login_비활성계정_UnauthorizedException() {
-        Admin inactive = Admin.builder().loginId("admin02").loginPwd("encoded")
+        StAdminBase inactive = StAdminBase.builder().loginId("admin02").loginPwd("encoded")
                 .adminNm("비활성").roleCd("ADMIN").useYn("N").build();
         given(adminMapper.selectByLoginId("admin02")).willReturn(inactive);
         given(passwordEncoder.matches("pw", "encoded")).willReturn(true);
@@ -83,7 +83,7 @@ class AdminAuthServiceTest {
 
     @Test
     void loadUser_비활성관리자_null반환() {
-        Admin inactive = Admin.builder().loginId("admin02").loginPwd("encoded")
+        StAdminBase inactive = StAdminBase.builder().loginId("admin02").loginPwd("encoded")
                 .adminNm("비활성").roleCd("ADMIN").useYn("N").build();
         given(adminMapper.selectByLoginId("admin02")).willReturn(inactive);
         assertThat(adminAuthService.loadUser("admin02")).isNull();

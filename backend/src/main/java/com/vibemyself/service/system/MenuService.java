@@ -1,8 +1,8 @@
 package com.vibemyself.service.system;
 
 import com.vibemyself.dto.system.MenuResponse;
+import com.vibemyself.entity.StMenuBase;
 import com.vibemyself.mapper.system.MenuMapper;
-import com.vibemyself.model.system.Menu;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,10 +21,10 @@ public class MenuService {
 
     @Transactional(readOnly = true)
     public List<MenuResponse> getMenuTree() {
-        List<Menu> flatMenus = menuMapper.selectAllActive();
+        List<StMenuBase> flatMenus = menuMapper.selectAllActive();
 
         Map<Long, MenuResponse> index = new LinkedHashMap<>();
-        for (Menu menu : flatMenus) {
+        for (StMenuBase menu : flatMenus) {
             index.put(menu.getMenuNo(), MenuResponse.builder()
                     .menuNo(menu.getMenuNo())
                     .menuNm(menu.getMenuNm())
@@ -34,7 +34,7 @@ public class MenuService {
         }
 
         List<MenuResponse> roots = new ArrayList<>();
-        for (Menu menu : flatMenus) {
+        for (StMenuBase menu : flatMenus) {
             MenuResponse response = index.get(menu.getMenuNo());
             if (menu.getParentMenuNo() == null) {
                 roots.add(response);

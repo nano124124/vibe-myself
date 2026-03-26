@@ -1,10 +1,10 @@
 package com.vibemyself.mapper.member;
 
-import com.vibemyself.model.member.Member;
+import com.vibemyself.entity.EtMbrBase;
 import org.apache.ibatis.annotations.Mapper;
 
 @Mapper
 public interface MemberMapper {
-    Member selectByLoginId(String loginId);
-    Member selectByMbrNo(String mbrNo);
+    EtMbrBase selectByLoginId(String loginId);
+    EtMbrBase selectByMbrNo(String mbrNo);
 }

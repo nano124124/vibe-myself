@@ -5,8 +5,8 @@ import com.vibemyself.common.jwt.JwtProvider;
 import com.vibemyself.common.redis.RedisService;
 import com.vibemyself.dto.member.LoginMemberRequest;
 import com.vibemyself.global.exception.UnauthorizedException;
+import com.vibemyself.entity.EtMbrBase;
 import com.vibemyself.mapper.member.MemberMapper;
-import com.vibemyself.model.member.Member;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -29,8 +29,8 @@ class MemberAuthServiceTest {
     @Mock ObjectMapper objectMapper;
     @InjectMocks MemberAuthService memberAuthService;
 
-    private Member activeM0001() {
-        return Member.builder()
+    private EtMbrBase activeM0001() {
+        return EtMbrBase.builder()
                 .mbrNo("M0001").loginId("user@test.com").loginPwd("encoded")
                 .mbrNm("테스터").grdCd("BASIC").mbrStatCd("NORMAL").build();
     }
@@ -56,7 +56,7 @@ class MemberAuthServiceTest {
 
     @Test
     void login_비활성계정_UnauthorizedException() {
-        Member inactive = Member.builder()
+        EtMbrBase inactive = EtMbrBase.builder()
                 .mbrNo("M0002").loginId("user2@test.com").loginPwd("encoded")
                 .mbrNm("비활성").grdCd("BASIC").mbrStatCd("STOP").build();
         given(memberMapper.selectByLoginId("user2@test.com")).willReturn(inactive);
@@ -142,7 +142,7 @@ class MemberAuthServiceTest {
 
     @Test
     void loadUser_비활성회원_null반환() {
-        Member inactive = Member.builder().mbrNo("M0002").mbrStatCd("WDRL").build();
+        EtMbrBase inactive = EtMbrBase.builder().mbrNo("M0002").mbrStatCd("WDRL").build();
         given(memberMapper.selectByMbrNo("M0002")).willReturn(inactive);
         assertThat(memberAuthService.loadUser("M0002")).isNull();
     }

@@ -29,13 +29,12 @@ com.vibemyself/
 │   ├── order/
 │   ├── prom/
 │   └── system/
-├── model/                     # 도메인 모델 (DB 엔티티)
-│   ├── member/
-│   ├── goods/
-│   ├── cart/
-│   ├── order/
-│   ├── prom/
-│   └── system/
+├── entity/                    # DB 테이블과 1:1 매핑되는 엔티티 (모듈 구분 없음, 플랫 구조)
+│   ├── StAdminBase.java       # ST_ADMIN_BASE
+│   ├── StMenuBase.java        # ST_MENU_BASE
+│   ├── EtMbrBase.java         # ET_MBR_BASE
+│   ├── PrCtgBase.java         # PR_CTG_BASE
+│   └── ...                    # 클래스명 = DB 테이블명의 PascalCase
 ├── dto/                       # 요청/응답 DTO
 │   ├── member/
 │   ├── goods/
@@ -54,7 +53,7 @@ com.vibemyself/
 | Service | `service/` | 비즈니스 로직, 트랜잭션 처리 |
 | Mapper | `mapper/` | MyBatis SQL 매퍼 인터페이스 |
 | DTO | `dto/` | 요청/응답 데이터 구조 정의 |
-| Domain | `domain/` | DB 테이블과 매핑되는 모델 클래스 |
+| Entity | `entity/` | DB 테이블과 1:1 매핑되는 엔티티 클래스 (플랫 구조, 클래스명 = 테이블명 PascalCase) |
 
 ## 네이밍 컨벤션
 
@@ -65,7 +64,7 @@ com.vibemyself/
 | Mapper | `{Module}Mapper` | `OrderMapper` |
 | Request DTO | `{Action}{Module}Request` | `CreateOrderRequest` |
 | Response DTO | `{Module}{Detail}Response` | `OrderDetailResponse` |
-| Domain | `{Module}` | `Order` |
+| Entity | `{TableName PascalCase}` | `OpOrdBase`, `PrCtgBase` |
 
 ## URL 구조
 

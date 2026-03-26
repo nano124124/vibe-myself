@@ -11,8 +11,8 @@ import com.vibemyself.enums.RoleCode;
 import java.util.Objects;
 import com.vibemyself.enums.UserType;
 import com.vibemyself.global.exception.UnauthorizedException;
+import com.vibemyself.entity.StAdminBase;
 import com.vibemyself.mapper.system.AdminMapper;
-import com.vibemyself.model.system.Admin;
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -35,7 +35,7 @@ public class AdminAuthService {
     private final ObjectMapper objectMapper;
 
     public void login(LoginAdminRequest request, HttpServletResponse response) {
-        Admin admin = adminMapper.selectByLoginId(request.getLoginId());
+        StAdminBase admin = adminMapper.selectByLoginId(request.getLoginId());
         if (admin == null || !passwordEncoder.matches(request.getPassword(), admin.getLoginPwd())) {
             throw new UnauthorizedException("아이디 또는 비밀번호가 올바르지 않습니다.");
         }
@@ -77,7 +77,7 @@ public class AdminAuthService {
             throw new UnauthorizedException("유효하지 않은 refresh token입니다.");
         }
 
-        Admin admin = adminMapper.selectByLoginId(id);
+        StAdminBase admin = adminMapper.selectByLoginId(id);
         if (admin == null || !"Y".equals(admin.getUseYn())) {
             throw new UnauthorizedException("사용할 수 없는 계정입니다.");
         }
@@ -92,12 +92,12 @@ public class AdminAuthService {
     }
 
     public LoginUser loadUser(String id) {
-        Admin admin = adminMapper.selectByLoginId(id);
+        StAdminBase admin = adminMapper.selectByLoginId(id);
         if (admin == null || !"Y".equals(admin.getUseYn())) return null;
         return toLoginUser(admin);
     }
 
-    private LoginUser toLoginUser(Admin admin) {
+    private LoginUser toLoginUser(StAdminBase admin) {
         return LoginUser.builder()
                 .id(admin.getLoginId())
                 .loginId(admin.getLoginId())

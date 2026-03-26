@@ -1,11 +1,11 @@
 package com.vibemyself.mapper.system;
 
-import com.vibemyself.model.system.Menu;
+import com.vibemyself.entity.StMenuBase;
 import org.apache.ibatis.annotations.Mapper;
 
 import java.util.List;
 
 @Mapper
 public interface MenuMapper {
-    List<Menu> selectAllActive();
+    List<StMenuBase> selectAllActive();
 }
