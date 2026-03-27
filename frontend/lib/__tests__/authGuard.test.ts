@@ -98,4 +98,20 @@ describe('getRedirectPath', () => {
       expect(result).toBe('/admin')
     })
   })
+
+  describe('토큰 payload에 role 필드 없음', () => {
+    beforeEach(() => {
+      mockJwtVerify.mockResolvedValue({ payload: {} } as never)
+    })
+
+    it('/admin 접근 시 null 반환 (로그인 페이지 허용)', async () => {
+      const result = await getRedirectPath('valid.token.here', '/admin')
+      expect(result).toBeNull()
+    })
+
+    it('/admin/dashboard 접근 시 /admin 리다이렉트', async () => {
+      const result = await getRedirectPath('valid.token.here', '/admin/dashboard')
+      expect(result).toBe('/admin')
+    })
+  })
 })
