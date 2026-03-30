@@ -33,7 +33,7 @@
         WHERE CTG_NO = #{ctgNo}
     </select>
 
-    <insert id="insertCategory" useGeneratedKeys="true" keyProperty="ctgNo" keyColumn="CTG_NO">
+    <insert id="insertCategory" useGeneratedKeys="true" keyProperty="ctgNo" keyColumn="ctg_no">
         INSERT INTO PR_CTG_BASE (UP_CTG_NO, CTG_LVL, CTG_NM, SORT_ORD, USE_YN, REG_ID, MOD_ID)
         VALUES (#{upCtgNo}, #{ctgLvl}, #{ctgNm}, #{sortOrd}, 'Y', 'ADMIN', 'ADMIN')
     </insert>
