@@ -5,14 +5,16 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
+import java.math.BigDecimal;
+
 @Getter
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-public class StAdminBase extends CommonEntity {
-    private String loginId;
-    private String loginPwd;
-    private String adminNm;
-    private String roleCd;
+public class PrUnitBase extends CommonEntity {
+    private String goodsNo;
+    private int unitSeq;
+    private BigDecimal addPrc;
+    private int stockQty;
     private String useYn;
 }

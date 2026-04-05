@@ -60,7 +60,7 @@ com.vibemyself/
 | 구분 | 형식 | 예시 |
 |------|------|------|
 | Controller | `{Module}Controller` | `OrderController` |
-| Service | `{Module}Service` | `OrderService` |
+| Service | `{Module}{Action}Service` | `GoodsCreateService`, `OrderCancelService` |
 | Mapper | `{Module}Mapper` | `OrderMapper` |
 | Request DTO | `{Action}{Module}Request` | `CreateOrderRequest` |
 | Response DTO | `{Module}{Detail}Response` | `OrderDetailResponse` |

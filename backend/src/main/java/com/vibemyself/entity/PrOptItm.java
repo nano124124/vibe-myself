@@ -9,10 +9,10 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-public class StAdminBase extends CommonEntity {
-    private String loginId;
-    private String loginPwd;
-    private String adminNm;
-    private String roleCd;
+public class PrOptItm extends CommonEntity {
+    private String optGrpCd;
+    private String optItmCd;
+    private String optItmNm;
+    private int sortOrd;
     private String useYn;
 }

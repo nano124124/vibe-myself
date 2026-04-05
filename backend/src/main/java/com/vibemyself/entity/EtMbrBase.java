@@ -1,15 +1,15 @@
 package com.vibemyself.entity;
 
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 
 @Getter
-@Builder
+@SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-public class EtMbrBase {
+public class EtMbrBase extends CommonEntity {
     private String mbrNo;
     private String loginId;
     private String loginPwd;

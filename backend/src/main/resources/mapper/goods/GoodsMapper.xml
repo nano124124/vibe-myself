@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.vibemyself.mapper.goods.GoodsMapper">
+
+    <resultMap id="brandResultMap" type="com.vibemyself.entity.PrBrandBase">
+        <id     property="brandNo"       column="BRAND_NO"/>
+        <result property="brandNm"       column="BRAND_NM"/>
+        <result property="brandImgUrl"   column="BRAND_IMG_URL"/>
+        <result property="useYn"         column="USE_YN"/>
+    </resultMap>
+
+    <resultMap id="dlvPolicyResultMap" type="com.vibemyself.entity.PrDlvPolicy">
+        <id     property="dlvPolicyNo"   column="DLV_POLICY_NO"/>
+        <result property="dlvPolicyNm"   column="DLV_POLICY_NM"/>
+        <result property="dlvTpCd"       column="DLV_TP_CD"/>
+        <result property="dlvAmt"        column="DLV_AMT"/>
+        <result property="freeCondAmt"   column="FREE_COND_AMT"/>
+        <result property="rtnDlvAmt"     column="RTN_DLV_AMT"/>
+        <result property="useYn"         column="USE_YN"/>
+    </resultMap>
+
+    <resultMap id="optGrpResultMap" type="com.vibemyself.entity.PrOptGrp">
+        <id     property="optGrpCd"   column="OPT_GRP_CD"/>
+        <result property="optGrpNm"   column="OPT_GRP_NM"/>
+        <result property="sortOrd"    column="SORT_ORD"/>
+        <result property="useYn"      column="USE_YN"/>
+    </resultMap>
+
+    <resultMap id="optItmResultMap" type="com.vibemyself.entity.PrOptItm">
+        <id     property="optGrpCd"   column="OPT_GRP_CD"/>
+        <id     property="optItmCd"   column="OPT_ITM_CD"/>
+        <result property="optItmNm"   column="OPT_ITM_NM"/>
+        <result property="sortOrd"    column="SORT_ORD"/>
+        <result property="useYn"      column="USE_YN"/>
+    </resultMap>
+
+    <select id="selectAllBrands" resultMap="brandResultMap">
+        SELECT BRAND_NO, BRAND_NM, BRAND_IMG_URL, USE_YN
+        FROM PR_BRAND_BASE
+        WHERE USE_YN = 'Y'
+        ORDER BY BRAND_NM
+    </select>
+
+    <select id="selectAllDlvPolicies" resultMap="dlvPolicyResultMap">
+        SELECT DLV_POLICY_NO, DLV_POLICY_NM, DLV_TP_CD, DLV_AMT, FREE_COND_AMT, RTN_DLV_AMT, USE_YN
+        FROM PR_DLV_POLICY
+        WHERE USE_YN = 'Y'
+        ORDER BY DLV_POLICY_NM
+    </select>
+
+    <select id="selectAllOptGrps" resultMap="optGrpResultMap">
+        SELECT OPT_GRP_CD, OPT_GRP_NM, SORT_ORD, USE_YN
+        FROM PR_OPT_GRP
+        WHERE USE_YN = 'Y'
+        ORDER BY SORT_ORD
+    </select>
+
+    <select id="selectOptItmsByGrpCd" resultMap="optItmResultMap">
+        SELECT OPT_GRP_CD, OPT_ITM_CD, OPT_ITM_NM, SORT_ORD, USE_YN
+        FROM PR_OPT_ITM
+        WHERE OPT_GRP_CD = #{optGrpCd}
+          AND USE_YN = 'Y'
+        ORDER BY SORT_ORD
+    </select>
+
+    <select id="selectBrandByNo" resultMap="brandResultMap">
+        SELECT BRAND_NO, BRAND_NM, BRAND_IMG_URL, USE_YN
+        FROM PR_BRAND_BASE
+        WHERE BRAND_NO = #{brandNo}
+    </select>
+
+    <select id="selectDlvPolicyByNo" resultMap="dlvPolicyResultMap">
+        SELECT DLV_POLICY_NO, DLV_POLICY_NM, DLV_TP_CD, DLV_AMT, FREE_COND_AMT, RTN_DLV_AMT, USE_YN
+        FROM PR_DLV_POLICY
+        WHERE DLV_POLICY_NO = #{dlvPolicyNo}
+    </select>
+
+    <select id="selectOptGrpByCd" resultMap="optGrpResultMap">
+        SELECT OPT_GRP_CD, OPT_GRP_NM, SORT_ORD, USE_YN
+        FROM PR_OPT_GRP
+        WHERE OPT_GRP_CD = #{optGrpCd}
+    </select>
+
+    <select id="selectOptItmByCds" resultMap="optItmResultMap">
+        SELECT OPT_GRP_CD, OPT_ITM_CD, OPT_ITM_NM, SORT_ORD, USE_YN
+        FROM PR_OPT_ITM
+        WHERE OPT_GRP_CD = #{optGrpCd}
+          AND OPT_ITM_CD = #{optItmCd}
+    </select>
+
+    <insert id="insertGoods" parameterType="com.vibemyself.entity.PrGoodsBase">
+        <selectKey keyProperty="goodsNo" resultType="String" order="BEFORE">
+            SELECT 'G' || LPAD(CAST(nextval('seq_goods_no') AS TEXT), 6, '0')
+        </selectKey>
+        INSERT INTO PR_GOODS_BASE (
+            GOODS_NO, GOODS_NM, GOODS_TP_CD, SALE_PRC,
+            CTG_NO, BRAND_NO, SALE_STAT_CD, DLV_POLICY_NO, GOODS_DESC,
+            REG_ID, MOD_ID
+        ) VALUES (
+            #{goodsNo}, #{goodsNm}, #{goodsTpCd}, #{salePrc},
+            #{ctgNo}, #{brandNo}, #{saleStatCd}, #{dlvPolicyNo}, #{goodsDesc},
+            #{regId}, #{modId}
+        )
+    </insert>
+
+    <insert id="insertGoodsImg" parameterType="com.vibemyself.entity.PrGoodsImg">
+        INSERT INTO PR_GOODS_IMG (GOODS_NO, IMG_SEQ, IMG_URL, SORT_ORD, REG_ID, MOD_ID)
+        VALUES (#{goodsNo}, #{imgSeq}, #{imgUrl}, #{sortOrd}, #{regId}, #{modId})
+    </insert>
+
+    <insert id="insertGoodsOpt" parameterType="com.vibemyself.entity.PrGoodsOpt">
+        INSERT INTO PR_GOODS_OPT (GOODS_NO, OPT_GRP_CD, SORT_ORD, REG_ID, MOD_ID)
+        VALUES (#{goodsNo}, #{optGrpCd}, #{sortOrd}, #{regId}, #{modId})
+    </insert>
+
+</mapper>

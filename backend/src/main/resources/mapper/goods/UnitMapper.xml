@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.vibemyself.mapper.goods.UnitMapper">
+
+    <insert id="insertUnit" parameterType="com.vibemyself.entity.PrUnitBase">
+        INSERT INTO PR_UNIT_BASE (GOODS_NO, UNIT_SEQ, ADD_PRC, STOCK_QTY, USE_YN, REG_ID, MOD_ID)
+        VALUES (#{goodsNo}, #{unitSeq}, #{addPrc}, #{stockQty}, #{useYn}, #{regId}, #{modId})
+    </insert>
+
+    <insert id="insertUnitOpt" parameterType="com.vibemyself.entity.PrUnitOpt">
+        INSERT INTO PR_UNIT_OPT (GOODS_NO, UNIT_SEQ, OPT_GRP_CD, OPT_ITM_CD, REG_ID)
+        VALUES (#{goodsNo}, #{unitSeq}, #{optGrpCd}, #{optItmCd}, #{regId})
+    </insert>
+
+</mapper>

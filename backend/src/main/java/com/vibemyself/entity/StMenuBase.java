@@ -1,15 +1,15 @@
 package com.vibemyself.entity;
 
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 
 @Getter
-@Builder
+@SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-public class StMenuBase {
+public class StMenuBase extends CommonEntity {
     private Long menuNo;
     private Long parentMenuNo;
     private String menuNm;
