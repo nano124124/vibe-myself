@@ -1,6 +1,6 @@
 package com.vibemyself.service.goods;
 
-import com.vibemyself.common.security.LoginUser;
+import com.vibemyself.common.util.SecurityUtils;
 import com.vibemyself.dto.goods.CreateGoodsRequest;
 import com.vibemyself.dto.goods.UnitOptRequest;
 import com.vibemyself.dto.goods.UnitRequest;
@@ -17,7 +17,6 @@ import com.vibemyself.mapper.goods.CategoryMapper;
 import com.vibemyself.mapper.goods.GoodsMapper;
 import com.vibemyself.mapper.goods.UnitMapper;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -38,7 +37,7 @@ public class GoodsCreateService {
     public String createGoods(CreateGoodsRequest request) {
         validate(request);
 
-        String userId = currentUserId();
+        String userId = SecurityUtils.currentUserId();
 
         PrGoodsBase goods = PrGoodsBase.builder()
                 .goodsNm(request.goodsNm())
@@ -143,9 +142,4 @@ public class GoodsCreateService {
         }
     }
 
-    private String currentUserId() {
-        LoginUser loginUser = (LoginUser) SecurityContextHolder.getContext()
-                .getAuthentication().getPrincipal();
-        return loginUser.getLoginId();
-    }
 }
