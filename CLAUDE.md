@@ -93,6 +93,7 @@ NEXT_PUBLIC_API_URL=http://localhost:8080
 - **API 개발 시 작업 전 반드시 `@docs/backend/coding-guide.md` 를 읽고 규칙을 준수한다.**
 - **프론트엔드 개발 시 작업 전 반드시 `@docs/frontend/coding-guide.md` 를 읽고 규칙을 준수한다.**
 - **작업 범위가 크거나 설계 판단이 필요한 경우, 구현 전 `docs/plans` 에 계획을 먼저 작성하고 확인받는다.**
+- **작업 시 참고한 파일을 반드시 마지막에 명시한다.**
 
 ## 백엔드 연동
 

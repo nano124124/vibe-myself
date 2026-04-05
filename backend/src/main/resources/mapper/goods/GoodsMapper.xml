@@ -35,6 +35,35 @@
         <result property="useYn"      column="USE_YN"/>
     </resultMap>
 
+    <select id="selectAllBrands" resultMap="brandResultMap">
+        SELECT BRAND_NO, BRAND_NM, BRAND_IMG_URL, USE_YN
+        FROM PR_BRAND_BASE
+        WHERE USE_YN = 'Y'
+        ORDER BY BRAND_NM
+    </select>
+
+    <select id="selectAllDlvPolicies" resultMap="dlvPolicyResultMap">
+        SELECT DLV_POLICY_NO, DLV_POLICY_NM, DLV_TP_CD, DLV_AMT, FREE_COND_AMT, RTN_DLV_AMT, USE_YN
+        FROM PR_DLV_POLICY
+        WHERE USE_YN = 'Y'
+        ORDER BY DLV_POLICY_NM
+    </select>
+
+    <select id="selectAllOptGrps" resultMap="optGrpResultMap">
+        SELECT OPT_GRP_CD, OPT_GRP_NM, SORT_ORD, USE_YN
+        FROM PR_OPT_GRP
+        WHERE USE_YN = 'Y'
+        ORDER BY SORT_ORD
+    </select>
+
+    <select id="selectOptItmsByGrpCd" resultMap="optItmResultMap">
+        SELECT OPT_GRP_CD, OPT_ITM_CD, OPT_ITM_NM, SORT_ORD, USE_YN
+        FROM PR_OPT_ITM
+        WHERE OPT_GRP_CD = #{optGrpCd}
+          AND USE_YN = 'Y'
+        ORDER BY SORT_ORD
+    </select>
+
     <select id="selectBrandByNo" resultMap="brandResultMap">
         SELECT BRAND_NO, BRAND_NM, BRAND_IMG_URL, USE_YN
         FROM PR_BRAND_BASE

@@ -1,8 +1,13 @@
 import api from '@/lib/api'
 import type {
+  BrandResponse,
   CategoryResponse,
   CreateCategoryRequest,
   CreateCategoryResponse,
+  CreateGoodsRequest,
+  CreateGoodsResponse,
+  DlvPolicyResponse,
+  OptGrpResponse,
   UpdateCategoryRequest,
 } from '@/types/goods.types'
 
@@ -22,3 +27,23 @@ export const updateCategory = (ctgNo: number, data: UpdateCategoryRequest): Prom
   api
     .put<ApiResponse<null>>(`/api/admin/goods/categories/${ctgNo}`, data)
     .then(() => undefined)
+
+export const getBrands = (): Promise<BrandResponse[]> =>
+  api
+    .get<ApiResponse<BrandResponse[]>>('/api/admin/goods/brands')
+    .then((res) => res.data.data)
+
+export const getDlvPolicies = (): Promise<DlvPolicyResponse[]> =>
+  api
+    .get<ApiResponse<DlvPolicyResponse[]>>('/api/admin/goods/dlv-policies')
+    .then((res) => res.data.data)
+
+export const getOptGroups = (): Promise<OptGrpResponse[]> =>
+  api
+    .get<ApiResponse<OptGrpResponse[]>>('/api/admin/goods/opt-groups')
+    .then((res) => res.data.data)
+
+export const createGoods = (data: CreateGoodsRequest): Promise<CreateGoodsResponse> =>
+  api
+    .post<ApiResponse<CreateGoodsResponse>>('/api/admin/goods', data)
+    .then((res) => res.data.data)

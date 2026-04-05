@@ -10,17 +10,27 @@ import com.vibemyself.entity.PrOptItm;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
+import java.util.List;
+
 @Mapper
 public interface GoodsMapper {
 
     PrBrandBase selectBrandByNo(Long brandNo);
 
+    List<PrBrandBase> selectAllBrands();
+
     PrDlvPolicy selectDlvPolicyByNo(String dlvPolicyNo);
+
+    List<PrDlvPolicy> selectAllDlvPolicies();
 
     PrOptGrp selectOptGrpByCd(String optGrpCd);
 
+    List<PrOptGrp> selectAllOptGrps();
+
     PrOptItm selectOptItmByCds(@Param("optGrpCd") String optGrpCd,
                                @Param("optItmCd") String optItmCd);
+
+    List<PrOptItm> selectOptItmsByGrpCd(String optGrpCd);
 
     void insertGoods(PrGoodsBase goods);
 
