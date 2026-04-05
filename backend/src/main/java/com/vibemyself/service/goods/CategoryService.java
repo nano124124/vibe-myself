@@ -1,5 +1,6 @@
 package com.vibemyself.service.goods;
 
+import com.vibemyself.common.security.LoginUser;
 import com.vibemyself.dto.goods.CategoryResponse;
 import com.vibemyself.dto.goods.CreateCategoryRequest;
 import com.vibemyself.dto.goods.UpdateCategoryRequest;
@@ -8,6 +9,7 @@ import com.vibemyself.global.exception.ErrorCode;
 import com.vibemyself.mapper.goods.CategoryMapper;
 import com.vibemyself.entity.PrCtgBase;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,11 +32,14 @@ public class CategoryService {
     @Transactional
     public Long createCategory(CreateCategoryRequest request) {
         String ctgLvl = resolveLevel(request.getUpCtgNo());
+        String userId = currentUserId();
         PrCtgBase category = PrCtgBase.builder()
                 .upCtgNo(request.getUpCtgNo())
                 .ctgLvl(ctgLvl)
                 .ctgNm(request.getCtgNm())
                 .sortOrd(request.getSortOrd())
+                .regId(userId)
+                .modId(userId)
                 .build();
         categoryMapper.insertCategory(category);
         return category.getCtgNo();
@@ -50,6 +55,7 @@ public class CategoryService {
                 .ctgNm(request.getCtgNm())
                 .useYn(request.getUseYn())
                 .sortOrd(request.getSortOrd())
+                .modId(currentUserId())
                 .build();
         categoryMapper.updateCategory(category);
     }
@@ -74,5 +80,11 @@ public class CategoryService {
                 .sorted(Comparator.comparingInt(PrCtgBase::getSortOrd))
                 .map(c -> CategoryResponse.of(c, buildTree(all, c.getCtgNo())))
                 .toList();
+    }
+
+    private String currentUserId() {
+        LoginUser loginUser = (LoginUser) SecurityContextHolder.getContext()
+                .getAuthentication().getPrincipal();
+        return loginUser.getLoginId();
     }
 }

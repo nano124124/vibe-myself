@@ -42,7 +42,7 @@
 
 ## DTO
 
-- Request DTO: `@Valid` + Bean Validation으로 입력값을 검증한다
+- Request DTO: `record` 로 선언하여 불변 객체로 만든다. Bean Validation 어노테이션은 record 컴포넌트에 직접 선언한다
 - Response DTO: `record` 또는 `@Getter` + `@Builder` 로 불변 객체로 만든다
 - DTO는 도메인 모델과 분리한다. Controller ↔ Service 경계에서 변환한다
 

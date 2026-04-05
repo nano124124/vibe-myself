@@ -20,7 +20,14 @@ public enum ErrorCode {
     // ── 카테고리 ──────────────────────────────────────────
     CATEGORY_NOT_FOUND("카테고리를 찾을 수 없습니다.", 404),
     CATEGORY_PARENT_NOT_FOUND("상위 카테고리가 존재하지 않습니다.", 400),
-    CATEGORY_MAX_DEPTH_EXCEEDED("3단계 이하로는 카테고리를 등록할 수 없습니다.", 400);
+    CATEGORY_MAX_DEPTH_EXCEEDED("3단계 이하로는 카테고리를 등록할 수 없습니다.", 400),
+
+    // ── 상품 ──────────────────────────────────────────────
+    BRAND_NOT_FOUND("브랜드를 찾을 수 없습니다.", 404),
+    DLV_POLICY_NOT_FOUND("배송정책을 찾을 수 없습니다.", 404),
+    OPT_GRP_NOT_FOUND("옵션 그룹을 찾을 수 없습니다.", 404),
+    OPT_ITM_NOT_FOUND("옵션 항목을 찾을 수 없습니다.", 404),
+    GOODS_IMG_LIMIT_EXCEEDED("상품 이미지는 최대 5장까지 등록할 수 있습니다.", 400);
 
     private final String message;
     private final int status;
