@@ -1,3 +1,16 @@
+export interface CodeResponse {
+  codeCd: string
+  codeNm: string
+  sortOrd: number
+}
+
+export const CODE_GROUP = {
+  GOODS_TP: 'GOODS_TP',
+  SALE_STAT: 'SALE_STAT',
+} as const
+
+// ──────────────────────────────────────────────────────────────────
+
 export interface LoginAdminRequest {
   loginId: string
   password: string

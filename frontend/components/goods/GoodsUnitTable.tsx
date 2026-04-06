@@ -1,13 +1,22 @@
 'use client'
 
-import type { UnitRequest } from '@/types/goods.types'
+import type { OptGrpResponse, UnitRequest } from '@/types/goods.types'
 
 interface GoodsUnitTableProps {
   units: UnitRequest[]
+  optGroups: OptGrpResponse[]
   onChange: (units: UnitRequest[]) => void
 }
 
-const GoodsUnitTable = ({ units, onChange }: GoodsUnitTableProps) => {
+const GoodsUnitTable = ({ units, optGroups, onChange }: GoodsUnitTableProps) => {
+  const itmNmMap: Record<string, Record<string, string>> = {}
+  for (const grp of optGroups) {
+    itmNmMap[grp.optGrpCd] = {}
+    for (const itm of grp.items) {
+      itmNmMap[grp.optGrpCd][itm.optItmCd] = itm.optItmNm
+    }
+  }
+
   const updateUnit = (index: number, field: 'addPrc' | 'stockQty', value: number) => {
     const next = units.map((u, i) => (i === index ? { ...u, [field]: value } : u))
     onChange(next)
@@ -32,7 +41,7 @@ const GoodsUnitTable = ({ units, onChange }: GoodsUnitTableProps) => {
         {units.map((unit, i) => (
           <tr key={i} className="border-b border-slate-100">
             <td className="py-2 pr-4 text-slate-700">
-              {unit.optItms.map((o) => o.optItmCd).join(' / ')}
+              {unit.optItms.map((o) => itmNmMap[o.optGrpCd]?.[o.optItmCd] ?? o.optItmCd).join(' / ')}
             </td>
             <td className="py-2 pr-4">
               <input

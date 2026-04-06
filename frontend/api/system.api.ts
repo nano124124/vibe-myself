@@ -1,5 +1,12 @@
 import api from '@/lib/api'
-import type { LoginAdminRequest, MenuResponse } from '@/types/system.types'
+import type { CodeResponse, LoginAdminRequest, MenuResponse } from '@/types/system.types'
+
+type ApiResponse<T> = { success: boolean; data: T; message: string | null }
+
+export const getCodeList = (codeGrpCd: string): Promise<CodeResponse[]> =>
+  api
+    .get<ApiResponse<CodeResponse[]>>(`/api/admin/system/codes/${codeGrpCd}`)
+    .then((res) => res.data.data)
 
 export const loginAdmin = (data: LoginAdminRequest): Promise<void> =>
   api.post('/api/admin/system/login', data).then(() => undefined)

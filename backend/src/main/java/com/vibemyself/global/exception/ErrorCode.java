@@ -23,6 +23,8 @@ public enum ErrorCode {
     CATEGORY_MAX_DEPTH_EXCEEDED("3단계 이하로는 카테고리를 등록할 수 없습니다.", 400),
 
     // ── 상품 ──────────────────────────────────────────────
+    INVALID_GOODS_TYPE_CD("유효하지 않은 상품유형 코드입니다.", 400),
+    INVALID_SALE_STAT_CD("유효하지 않은 판매상태 코드입니다.", 400),
     BRAND_NOT_FOUND("브랜드를 찾을 수 없습니다.", 404),
     DLV_POLICY_NOT_FOUND("배송정책을 찾을 수 없습니다.", 404),
     OPT_GRP_NOT_FOUND("옵션 그룹을 찾을 수 없습니다.", 404),

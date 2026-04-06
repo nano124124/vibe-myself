@@ -5,6 +5,7 @@ import com.vibemyself.entity.PrDlvPolicy;
 import com.vibemyself.entity.PrGoodsBase;
 import com.vibemyself.entity.PrGoodsImg;
 import com.vibemyself.entity.PrGoodsOpt;
+import com.vibemyself.entity.PrGoodsPrc;
 import com.vibemyself.entity.PrOptGrp;
 import com.vibemyself.entity.PrOptItm;
 import org.apache.ibatis.annotations.Mapper;
@@ -33,6 +34,8 @@ public interface GoodsMapper {
     List<PrOptItm> selectOptItmsByGrpCd(String optGrpCd);
 
     void insertGoods(PrGoodsBase goods);
+
+    void insertGoodsPrc(PrGoodsPrc goodsPrc);
 
     void insertGoodsImg(PrGoodsImg goodsImg);
 

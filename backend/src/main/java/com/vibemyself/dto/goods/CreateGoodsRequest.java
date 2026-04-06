@@ -7,6 +7,7 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 
 public record CreateGoodsRequest(
@@ -26,7 +27,15 @@ public record CreateGoodsRequest(
         @Positive(message = "판매가는 0보다 커야 합니다.")
         BigDecimal salePrc,
 
+        BigDecimal normPrc,
+
+        BigDecimal suplyPrc,
+
         String goodsDesc,
+
+        LocalDateTime saleStartDtm,
+
+        LocalDateTime saleEndDtm,
 
         @NotBlank(message = "판매상태 코드는 필수입니다.")
         String saleStatCd,

@@ -6,8 +6,8 @@
         "hooks": [
           {
             "type": "command",
-            "command": "STDIN=$(cat); FILE=$(echo \"$STDIN\" | jq -r '.tool_input.file_path // empty'); if echo \"$FILE\" | grep -qE 'components/.*Form[^/]*\\.tsx$'; then echo \"{\\\"hookSpecificOutput\\\":{\\\"hookEventName\\\":\\\"PostToolUse\\\",\\\"additionalContext\\\":\\\"폼 컴포넌트 파일($FILE)이 저장되었습니다. form-validation-tests 스킬을 즉시 실행하여 Vitest + Playwright 테스트를 생성하고 실행하세요.\\\"}}\"; fi",
-            "statusMessage": "폼 컴포넌트 감지 중..."
+            "command": "STDIN=$(cat); FILE=$(echo \"$STDIN\" | jq -r '.tool_input.file_path // empty'); if echo \"$FILE\" | grep -qE 'frontend/components/[^/]+/[^/]+\\.tsx$'; then echo \"{\\\"hookSpecificOutput\\\":{\\\"hookEventName\\\":\\\"PostToolUse\\\",\\\"additionalContext\\\":\\\"[MANDATORY] 컴포넌트 파일이 수정되었습니다: $FILE. CLAUDE.md 협업 규칙에 따라 form-validation-tests 스킬을 즉시 호출하여 Vitest+Playwright 검증 테스트를 생성하고 실행하세요. 스킬 실행 없이 작업 완료를 선언할 수 없습니다.\\\"}}\"; fi",
+            "statusMessage": "컴포넌트 변경 감지 중..."
           }
         ]
       }
