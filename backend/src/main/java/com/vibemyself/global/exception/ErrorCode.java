@@ -29,7 +29,10 @@ public enum ErrorCode {
     DLV_POLICY_NOT_FOUND("배송정책을 찾을 수 없습니다.", 404),
     OPT_GRP_NOT_FOUND("옵션 그룹을 찾을 수 없습니다.", 404),
     OPT_ITM_NOT_FOUND("옵션 항목을 찾을 수 없습니다.", 404),
-    GOODS_IMG_LIMIT_EXCEEDED("상품 이미지는 최대 5장까지 등록할 수 있습니다.", 400);
+    GOODS_IMG_LIMIT_EXCEEDED("상품 이미지는 최대 5장까지 등록할 수 있습니다.", 400),
+
+    // ── 스토리지 ──────────────────────────────────────────
+    IMAGE_UPLOAD_FAILED("이미지 업로드에 실패했습니다.", 500);
 
     private final String message;
     private final int status;
