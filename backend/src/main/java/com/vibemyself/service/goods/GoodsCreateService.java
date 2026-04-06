@@ -5,7 +5,6 @@ import com.vibemyself.dto.goods.CreateGoodsRequest;
 import com.vibemyself.dto.goods.UnitOptRequest;
 import com.vibemyself.dto.goods.UnitRequest;
 import com.vibemyself.entity.PrGoodsBase;
-import com.vibemyself.entity.PrGoodsImg;
 import com.vibemyself.entity.PrGoodsOpt;
 import com.vibemyself.entity.PrGoodsPrc;
 import com.vibemyself.entity.PrUnitBase;
@@ -76,7 +75,6 @@ public class GoodsCreateService {
                 .modId(userId)
                 .build());
 
-        insertImages(goods.getGoodsNo(), request.imgUrls(), userId);
         insertGoodsOpts(goods.getGoodsNo(), request.optGrpCds(), userId);
         insertUnits(goods.getGoodsNo(), request.units(), userId);
 
@@ -89,9 +87,6 @@ public class GoodsCreateService {
         }
         if (!GoodsSaleStatus.isValid(request.saleStatCd())) {
             throw new AppException(ErrorCode.INVALID_SALE_STAT_CD);
-        }
-        if (!CollectionUtils.isEmpty(request.imgUrls()) && request.imgUrls().size() > IMG_MAX_COUNT) {
-            throw new AppException(ErrorCode.GOODS_IMG_LIMIT_EXCEEDED);
         }
         if (categoryMapper.selectByCtgNo(request.ctgNo()) == null) {
             throw new AppException(ErrorCode.CATEGORY_NOT_FOUND);
@@ -117,22 +112,6 @@ public class GoodsCreateService {
             if (goodsMapper.selectOptItmByCds(optItm.optGrpCd(), optItm.optItmCd()) == null) {
                 throw new AppException(ErrorCode.OPT_ITM_NOT_FOUND);
             }
-        }
-    }
-
-    private void insertImages(String goodsNo, List<String> imgUrls, String userId) {
-        if (CollectionUtils.isEmpty(imgUrls)) {
-            return;
-        }
-        for (int i = 0; i < imgUrls.size(); i++) {
-            goodsMapper.insertGoodsImg(PrGoodsImg.builder()
-                    .goodsNo(goodsNo)
-                    .imgSeq(i + 1)
-                    .imgUrl(imgUrls.get(i))
-                    .sortOrd(i + 1)
-                    .regId(userId)
-                    .modId(userId)
-                    .build());
         }
     }
 

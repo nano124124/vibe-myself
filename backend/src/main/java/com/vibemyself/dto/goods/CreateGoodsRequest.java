@@ -2,7 +2,6 @@ package com.vibemyself.dto.goods;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 
@@ -43,12 +42,8 @@ public record CreateGoodsRequest(
         @NotBlank(message = "배송정책은 필수입니다.")
         String dlvPolicyNo,
 
-        List<String> imgUrls,
-
-        @NotEmpty(message = "옵션 그룹은 1개 이상 필요합니다.")
         List<String> optGrpCds,
 
-        @NotEmpty(message = "단품은 1개 이상 필요합니다.")
         @Valid
         List<UnitRequest> units
 ) {}
