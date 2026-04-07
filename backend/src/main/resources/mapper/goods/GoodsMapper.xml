@@ -91,7 +91,7 @@
 
     <insert id="insertGoods" parameterType="com.vibemyself.entity.PrGoodsBase">
         <selectKey keyProperty="goodsNo" resultType="String" order="BEFORE">
-            SELECT 'G' || LPAD(CAST(nextval('seq_goods_no') AS TEXT), 6, '0')
+            SELECT 'G' || LPAD(CAST(nextval('pr_goods_base_goods_no_seq') AS TEXT), 6, '0')
         </selectKey>
         INSERT INTO PR_GOODS_BASE (
             GOODS_NO, GOODS_NM, GOODS_TP_CD,
