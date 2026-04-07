@@ -1,60 +1,79 @@
 'use client'
 
+import { useRef } from 'react'
+
 interface GoodsImageInputProps {
-  imgUrls: string[]
-  onChange: (imgUrls: string[]) => void
+  files: File[]
+  onChange: (files: File[]) => void
 }
 
 const MAX_IMAGES = 5
 
-const GoodsImageInput = ({ imgUrls, onChange }: GoodsImageInputProps) => {
-  const addUrl = () => onChange([...imgUrls, ''])
+const GoodsImageInput = ({ files, onChange }: GoodsImageInputProps) => {
+  const inputRef = useRef<HTMLInputElement>(null)
 
-  const updateUrl = (index: number, value: string) => {
-    const next = [...imgUrls]
-    next[index] = value
-    onChange(next)
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const selected = Array.from(e.target.files ?? [])
+    const merged = [...files, ...selected].slice(0, MAX_IMAGES)
+    onChange(merged)
+    if (inputRef.current) inputRef.current.value = ''
   }
 
-  const removeUrl = (index: number) => onChange(imgUrls.filter((_, i) => i !== index))
+  const removeFile = (index: number) => {
+    onChange(files.filter((_, i) => i !== index))
+  }
 
   return (
     <div className="flex flex-col gap-3">
       <div className="flex items-center justify-between">
-        <p className="text-sm text-slate-500">첫 번째 이미지가 대표 이미지로 설정됩니다. (최대 {MAX_IMAGES}장)</p>
+        <p className="text-sm text-slate-500">
+          첫 번째 이미지가 대표 이미지로 설정됩니다. (최대 {MAX_IMAGES}장)
+        </p>
         <button
           type="button"
-          onClick={addUrl}
-          disabled={imgUrls.length >= MAX_IMAGES}
+          onClick={() => inputRef.current?.click()}
+          disabled={files.length >= MAX_IMAGES}
           className="rounded border border-blue-500 px-3 py-1 text-sm text-blue-600 hover:bg-blue-50 disabled:opacity-40"
         >
           + 이미지 추가
         </button>
+        <input
+          ref={inputRef}
+          type="file"
+          accept="image/*"
+          multiple
+          className="hidden"
+          onChange={handleFileChange}
+        />
       </div>
 
-      {imgUrls.map((url, i) => (
-        <div key={i} className="flex items-center gap-2">
-          <span className="w-5 shrink-0 text-center text-xs text-slate-400">{i + 1}</span>
-          <input
-            type="text"
-            value={url}
-            onChange={(e) => updateUrl(i, e.target.value)}
-            placeholder="이미지 URL을 입력하세요"
-            className="flex-1 rounded border border-slate-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
-          />
-          <button
-            type="button"
-            onClick={() => removeUrl(i)}
-            className="shrink-0 text-slate-400 hover:text-red-500"
-          >
-            ✕
-          </button>
-        </div>
-      ))}
-
-      {imgUrls.length === 0 && (
+      {files.length === 0 && (
         <p className="text-sm text-slate-400">등록된 이미지가 없습니다.</p>
       )}
+
+      <div className="flex flex-wrap gap-3">
+        {files.map((file, i) => (
+          <div key={i} className="relative">
+            {i === 0 && (
+              <span className="absolute left-1 top-1 rounded bg-blue-600 px-1 py-0.5 text-xs text-white">
+                대표
+              </span>
+            )}
+            <img
+              src={URL.createObjectURL(file)}
+              alt={file.name}
+              className="h-24 w-24 rounded border border-slate-200 object-cover"
+            />
+            <button
+              type="button"
+              onClick={() => removeFile(i)}
+              className="absolute right-1 top-1 rounded-full bg-white px-1 text-xs text-slate-500 shadow hover:text-red-500"
+            >
+              ✕
+            </button>
+          </div>
+        ))}
+      </div>
     </div>
   )
 }

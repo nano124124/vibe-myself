@@ -67,7 +67,6 @@ const calcMrgnRate = (salePrc: number, suplyPrc: number): number | null => {
 export default function GoodsCreatePage() {
   const router = useRouter()
 
-  // 참조 데이터
   const { data: categories = [] } = useCategoryList()
   const { data: brands = [] } = useBrandList()
   const { data: dlvPolicies = [] } = useDlvPolicyList()
@@ -77,7 +76,6 @@ export default function GoodsCreatePage() {
 
   const { mutate: createGoods, isPending, error } = useGoodsCreate()
 
-  // RHF
   const { register, handleSubmit, control, watch, formState: { errors } } = useForm<GoodsCreateFormValues>({
     defaultValues: {
       goodsNm: '',
@@ -99,15 +97,21 @@ export default function GoodsCreatePage() {
   const suplyPrc = watch('suplyPrc')
   const mrgnRate = useMemo(() => calcMrgnRate(salePrc, suplyPrc), [salePrc, suplyPrc])
 
-  // 옵션/단품 상태 (RHF 외부 관리)
-  const [imgUrls, setImgUrls] = useState<string[]>([])
+  const [imgFiles, setImgFiles] = useState<File[]>([])
+  const [optEnabled, setOptEnabled] = useState(false)
   const [selectedOptGrpCds, setSelectedOptGrpCds] = useState<string[]>([])
   const [selectedOptItms, setSelectedOptItms] = useState<Record<string, string[]>>({})
   const [units, setUnits] = useState<UnitRequest[]>([])
 
   useEffect(() => {
+    if (!optEnabled) {
+      setSelectedOptGrpCds([])
+      setSelectedOptItms({})
+      setUnits([])
+      return
+    }
     setUnits(buildUnits(selectedOptGrpCds, optGroups, selectedOptItms))
-  }, [selectedOptGrpCds, optGroups, selectedOptItms])
+  }, [optEnabled, selectedOptGrpCds, optGroups, selectedOptItms])
 
   const handleGrpChange = (cds: string[]) => {
     const added = cds.find((cd) => !selectedOptGrpCds.includes(cd))
@@ -150,12 +154,11 @@ export default function GoodsCreatePage() {
       saleEndDtm: formValues.saleEndDtm || undefined,
       saleStatCd: formValues.saleStatCd,
       dlvPolicyNo: formValues.dlvPolicyNo,
-      imgUrls: imgUrls.filter((url) => url.trim() !== ''),
       optGrpCds: selectedOptGrpCds,
       units,
     }
 
-    createGoods(request, {
+    createGoods({ data: request, images: imgFiles }, {
       onSuccess: () => router.push('/admin/goods'),
     })
   }
@@ -199,24 +202,53 @@ export default function GoodsCreatePage() {
 
         <section className="rounded-lg border border-slate-200 bg-white p-6">
           <h2 className="mb-4 text-sm font-semibold text-slate-700">상품 이미지</h2>
-          <GoodsImageInput imgUrls={imgUrls} onChange={setImgUrls} />
+          <GoodsImageInput files={imgFiles} onChange={setImgFiles} />
         </section>
 
         <section className="rounded-lg border border-slate-200 bg-white p-6">
-          <h2 className="mb-4 text-sm font-semibold text-slate-700">옵션 설정</h2>
-          <GoodsOptionSelector
-            optGroups={optGroups}
-            selectedCds={selectedOptGrpCds}
-            selectedItms={selectedOptItms}
-            onChange={handleGrpChange}
-            onItemChange={handleItmChange}
-          />
+          <div className="mb-4 flex items-center justify-between">
+            <h2 className="text-sm font-semibold text-slate-700">옵션 설정</h2>
+            <div className="flex gap-4 text-sm">
+              <label className="flex cursor-pointer items-center gap-1.5">
+                <input
+                  type="radio"
+                  name="optEnabled"
+                  checked={!optEnabled}
+                  onChange={() => setOptEnabled(false)}
+                  className="accent-blue-600"
+                />
+                옵션 없음
+              </label>
+              <label className="flex cursor-pointer items-center gap-1.5">
+                <input
+                  type="radio"
+                  name="optEnabled"
+                  checked={optEnabled}
+                  onChange={() => setOptEnabled(true)}
+                  className="accent-blue-600"
+                />
+                옵션 사용
+              </label>
+            </div>
+          </div>
+
+          {optEnabled && (
+            <GoodsOptionSelector
+              optGroups={optGroups}
+              selectedCds={selectedOptGrpCds}
+              selectedItms={selectedOptItms}
+              onChange={handleGrpChange}
+              onItemChange={handleItmChange}
+            />
+          )}
         </section>
 
-        <section className="rounded-lg border border-slate-200 bg-white p-6">
-          <h2 className="mb-4 text-sm font-semibold text-slate-700">단품 (재고 / 추가금액)</h2>
-          <GoodsUnitTable units={units} optGroups={optGroups} onChange={setUnits} />
-        </section>
+        {optEnabled && (
+          <section className="rounded-lg border border-slate-200 bg-white p-6">
+            <h2 className="mb-4 text-sm font-semibold text-slate-700">단품 (재고 / 추가금액)</h2>
+            <GoodsUnitTable units={units} optGroups={optGroups} onChange={setUnits} />
+          </section>
+        )}
 
         <div className="flex justify-end gap-3 pb-8">
           <button

@@ -5,8 +5,8 @@ export interface CodeResponse {
 }
 
 export const CODE_GROUP = {
-  GOODS_TP: 'GOODS_TP',
-  SALE_STAT: 'SALE_STAT',
+  GOODS_TP: 'GOODS_TP_CD',
+  SALE_STAT: 'SALE_STAT_CD',
 } as const
 
 // ──────────────────────────────────────────────────────────────────
