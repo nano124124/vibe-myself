@@ -1,10 +1,12 @@
 package com.vibemyself.service.goods;
 
+import com.vibemyself.common.storage.SupabaseStorageService;
 import com.vibemyself.common.util.SecurityUtils;
 import com.vibemyself.dto.goods.CreateGoodsRequest;
 import com.vibemyself.dto.goods.UnitOptRequest;
 import com.vibemyself.dto.goods.UnitRequest;
 import com.vibemyself.entity.PrGoodsBase;
+import com.vibemyself.entity.PrGoodsImg;
 import com.vibemyself.entity.PrGoodsOpt;
 import com.vibemyself.entity.PrGoodsPrc;
 import com.vibemyself.entity.PrUnitBase;
@@ -21,19 +23,20 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Collections;
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 public class GoodsCreateService {
 
-    private static final int IMG_MAX_COUNT = 5;
     private static final String PRC_APLY_TO_DT_INFINITY = "99991231";
     private static final DateTimeFormatter DT_FORMATTER = DateTimeFormatter.ofPattern("yyyyMMdd");
     private static final LocalDateTime SALE_END_DTM_DEFAULT = LocalDateTime.of(2999, 12, 31, 0, 0, 0);
@@ -41,9 +44,10 @@ public class GoodsCreateService {
     private final CategoryMapper categoryMapper;
     private final GoodsMapper goodsMapper;
     private final UnitMapper unitMapper;
+    private final SupabaseStorageService supabaseStorageService;
 
     @Transactional
-    public String createGoods(CreateGoodsRequest request) {
+    public String createGoods(CreateGoodsRequest request, List<MultipartFile> images) {
         validate(request);
 
         String userId = SecurityUtils.currentUserId();
@@ -75,8 +79,15 @@ public class GoodsCreateService {
                 .modId(userId)
                 .build());
 
-        insertGoodsOpts(goods.getGoodsNo(), request.optGrpCds(), userId);
-        insertUnits(goods.getGoodsNo(), request.units(), userId);
+        List<String> imgUrls = images.stream()
+                .map(file -> supabaseStorageService.upload(file, goods.getGoodsNo()))
+                .toList();
+        insertImages(goods.getGoodsNo(), imgUrls, userId);
+
+        List<String> optGrpCds = request.optGrpCds() != null ? request.optGrpCds() : Collections.emptyList();
+        List<UnitRequest> units = request.units() != null ? request.units() : Collections.emptyList();
+        insertGoodsOpts(goods.getGoodsNo(), optGrpCds, userId);
+        insertUnits(goods.getGoodsNo(), units, userId);
 
         return goods.getGoodsNo();
     }
@@ -97,12 +108,14 @@ public class GoodsCreateService {
         if (goodsMapper.selectDlvPolicyByNo(request.dlvPolicyNo()) == null) {
             throw new AppException(ErrorCode.DLV_POLICY_NOT_FOUND);
         }
-        for (String optGrpCd : request.optGrpCds()) {
+        List<String> optGrpCds = request.optGrpCds() != null ? request.optGrpCds() : Collections.emptyList();
+        for (String optGrpCd : optGrpCds) {
             if (goodsMapper.selectOptGrpByCd(optGrpCd) == null) {
                 throw new AppException(ErrorCode.OPT_GRP_NOT_FOUND);
             }
         }
-        for (UnitRequest unit : request.units()) {
+        List<UnitRequest> units = request.units() != null ? request.units() : Collections.emptyList();
+        for (UnitRequest unit : units) {
             validateUnitOptItems(unit);
         }
     }
@@ -112,6 +125,22 @@ public class GoodsCreateService {
             if (goodsMapper.selectOptItmByCds(optItm.optGrpCd(), optItm.optItmCd()) == null) {
                 throw new AppException(ErrorCode.OPT_ITM_NOT_FOUND);
             }
+        }
+    }
+
+    private void insertImages(String goodsNo, List<String> imgUrls, String userId) {
+        if (CollectionUtils.isEmpty(imgUrls)) {
+            return;
+        }
+        for (int i = 0; i < imgUrls.size(); i++) {
+            goodsMapper.insertGoodsImg(PrGoodsImg.builder()
+                    .goodsNo(goodsNo)
+                    .imgSeq(i + 1)
+                    .imgUrl(imgUrls.get(i))
+                    .sortOrd(i + 1)
+                    .regId(userId)
+                    .modId(userId)
+                    .build());
         }
     }
 
