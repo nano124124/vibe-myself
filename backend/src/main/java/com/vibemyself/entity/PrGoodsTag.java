@@ -9,8 +9,8 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-public class PrGoodsOpt extends CommonEntity {
+public class PrGoodsTag extends CommonEntity {
     private String goodsNo;
-    private String optGrpCd;
-    private int sortOrd;
+    private int tagSeq;
+    private String tagNm;
 }

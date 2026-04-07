@@ -123,9 +123,9 @@
         VALUES (#{goodsNo}, #{imgSeq}, #{imgUrl}, #{sortOrd}, #{regId}, #{modId})
     </insert>
 
-    <insert id="insertGoodsOpt" parameterType="com.vibemyself.entity.PrGoodsOpt">
-        INSERT INTO PR_GOODS_OPT (GOODS_NO, OPT_GRP_CD, SORT_ORD, REG_ID, MOD_ID)
-        VALUES (#{goodsNo}, #{optGrpCd}, #{sortOrd}, #{regId}, #{modId})
+    <insert id="insertGoodsTag" parameterType="com.vibemyself.entity.PrGoodsTag">
+        INSERT INTO PR_GOODS_TAG (GOODS_NO, TAG_SEQ, TAG_NM, REG_ID, MOD_ID)
+        VALUES (#{goodsNo}, #{tagSeq}, #{tagNm}, #{regId}, #{modId})
     </insert>
 
 </mapper>

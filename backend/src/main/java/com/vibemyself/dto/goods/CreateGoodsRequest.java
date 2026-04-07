@@ -42,7 +42,7 @@ public record CreateGoodsRequest(
         @NotBlank(message = "배송정책은 필수입니다.")
         String dlvPolicyNo,
 
-        List<String> optGrpCds,
+        List<String> tagNms,
 
         @Valid
         List<UnitRequest> units

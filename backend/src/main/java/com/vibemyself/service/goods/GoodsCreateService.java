@@ -7,8 +7,8 @@ import com.vibemyself.dto.goods.UnitOptRequest;
 import com.vibemyself.dto.goods.UnitRequest;
 import com.vibemyself.entity.PrGoodsBase;
 import com.vibemyself.entity.PrGoodsImg;
-import com.vibemyself.entity.PrGoodsOpt;
 import com.vibemyself.entity.PrGoodsPrc;
+import com.vibemyself.entity.PrGoodsTag;
 import com.vibemyself.entity.PrUnitBase;
 import com.vibemyself.entity.PrUnitOpt;
 import com.vibemyself.enums.GoodsSaleStatus;
@@ -28,18 +28,15 @@ import org.springframework.web.multipart.MultipartFile;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+
+import static com.vibemyself.service.goods.GoodsConstants.*;
 
 @Service
 @RequiredArgsConstructor
 public class GoodsCreateService {
-
-    private static final String PRC_APLY_TO_DT_INFINITY = "99991231";
-    private static final DateTimeFormatter DT_FORMATTER = DateTimeFormatter.ofPattern("yyyyMMdd");
-    private static final LocalDateTime SALE_END_DTM_DEFAULT = LocalDateTime.of(2999, 12, 31, 0, 0, 0);
 
     private final CategoryMapper categoryMapper;
     private final GoodsMapper goodsMapper;
@@ -51,45 +48,52 @@ public class GoodsCreateService {
         validate(request);
 
         String userId = SecurityUtils.currentUserId();
+        List<String> uploadedUrls = new ArrayList<>();
 
-        PrGoodsBase goods = PrGoodsBase.builder()
-                .goodsNm(request.goodsNm())
-                .goodsTpCd(GoodsType.fromCd(request.goodsTpCd()).getCd())
-                .ctgNo(request.ctgNo())
-                .brandNo(request.brandNo())
-                .saleStatCd(GoodsSaleStatus.fromCd(request.saleStatCd()).getCd())
-                .dlvPolicyNo(request.dlvPolicyNo())
-                .goodsDesc(request.goodsDesc())
-                .saleStartDtm(request.saleStartDtm())
-                .saleEndDtm(request.saleEndDtm() != null ? request.saleEndDtm() : SALE_END_DTM_DEFAULT)
-                .regId(userId)
-                .modId(userId)
-                .build();
-        goodsMapper.insertGoods(goods);
+        try {
+            PrGoodsBase goods = PrGoodsBase.builder()
+                    .goodsNm(request.goodsNm())
+                    .goodsTpCd(GoodsType.fromCd(request.goodsTpCd()).getCd())
+                    .ctgNo(request.ctgNo())
+                    .brandNo(request.brandNo())
+                    .saleStatCd(GoodsSaleStatus.fromCd(request.saleStatCd()).getCd())
+                    .dlvPolicyNo(request.dlvPolicyNo())
+                    .goodsDesc(request.goodsDesc())
+                    .saleStartDtm(request.saleStartDtm())
+                    .saleEndDtm(request.saleEndDtm() != null ? request.saleEndDtm() : SALE_END_DTM_DEFAULT)
+                    .regId(userId)
+                    .modId(userId)
+                    .build();
+            goodsMapper.insertGoods(goods);
 
-        goodsMapper.insertGoodsPrc(PrGoodsPrc.builder()
-                .goodsNo(goods.getGoodsNo())
-                .aplyFromDt(LocalDate.now().format(DT_FORMATTER))
-                .aplyToDt(PRC_APLY_TO_DT_INFINITY)
-                .salePrc(request.salePrc())
-                .normPrc(request.normPrc())
-                .suplyPrc(request.suplyPrc())
-                .mrgnRate(calcMrgnRate(request.salePrc(), request.suplyPrc()))
-                .regId(userId)
-                .modId(userId)
-                .build());
+            goodsMapper.insertGoodsPrc(PrGoodsPrc.builder()
+                    .goodsNo(goods.getGoodsNo())
+                    .aplyFromDt(LocalDate.now().format(DT_FORMATTER))
+                    .aplyToDt(PRC_APLY_TO_DT_INFINITY)
+                    .salePrc(request.salePrc())
+                    .normPrc(request.normPrc())
+                    .suplyPrc(request.suplyPrc())
+                    .mrgnRate(calcMrgnRate(request.salePrc(), request.suplyPrc()))
+                    .regId(userId)
+                    .modId(userId)
+                    .build());
 
-        List<String> imgUrls = images.stream()
-                .map(file -> supabaseStorageService.upload(file, goods.getGoodsNo()))
-                .toList();
-        insertImages(goods.getGoodsNo(), imgUrls, userId);
+            images.stream()
+                    .map(file -> supabaseStorageService.upload(file, goods.getGoodsNo()))
+                    .forEach(uploadedUrls::add);
+            insertImages(goods.getGoodsNo(), uploadedUrls, userId);
 
-        List<String> optGrpCds = request.optGrpCds() != null ? request.optGrpCds() : Collections.emptyList();
-        List<UnitRequest> units = request.units() != null ? request.units() : Collections.emptyList();
-        insertGoodsOpts(goods.getGoodsNo(), optGrpCds, userId);
-        insertUnits(goods.getGoodsNo(), units, userId);
+            List<UnitRequest> units = request.units() != null ? request.units() : Collections.emptyList();
+            List<String> tagNms = request.tagNms() != null ? request.tagNms() : Collections.emptyList();
+            insertUnits(goods.getGoodsNo(), units, userId);
+            insertGoodsTags(goods.getGoodsNo(), tagNms, userId);
 
-        return goods.getGoodsNo();
+            return goods.getGoodsNo();
+
+        } catch (Exception e) {
+            supabaseStorageService.deleteAll(uploadedUrls);
+            throw e;
+        }
     }
 
     private void validate(CreateGoodsRequest request) {
@@ -107,12 +111,6 @@ public class GoodsCreateService {
         }
         if (goodsMapper.selectDlvPolicyByNo(request.dlvPolicyNo()) == null) {
             throw new AppException(ErrorCode.DLV_POLICY_NOT_FOUND);
-        }
-        List<String> optGrpCds = request.optGrpCds() != null ? request.optGrpCds() : Collections.emptyList();
-        for (String optGrpCd : optGrpCds) {
-            if (goodsMapper.selectOptGrpByCd(optGrpCd) == null) {
-                throw new AppException(ErrorCode.OPT_GRP_NOT_FOUND);
-            }
         }
         List<UnitRequest> units = request.units() != null ? request.units() : Collections.emptyList();
         for (UnitRequest unit : units) {
@@ -137,18 +135,6 @@ public class GoodsCreateService {
                     .goodsNo(goodsNo)
                     .imgSeq(i + 1)
                     .imgUrl(imgUrls.get(i))
-                    .sortOrd(i + 1)
-                    .regId(userId)
-                    .modId(userId)
-                    .build());
-        }
-    }
-
-    private void insertGoodsOpts(String goodsNo, List<String> optGrpCds, String userId) {
-        for (int i = 0; i < optGrpCds.size(); i++) {
-            goodsMapper.insertGoodsOpt(PrGoodsOpt.builder()
-                    .goodsNo(goodsNo)
-                    .optGrpCd(optGrpCds.get(i))
                     .sortOrd(i + 1)
                     .regId(userId)
                     .modId(userId)
@@ -181,6 +167,18 @@ public class GoodsCreateService {
                         .modId(userId)
                         .build());
             }
+        }
+    }
+
+    private void insertGoodsTags(String goodsNo, List<String> tagNms, String userId) {
+        for (int i = 0; i < tagNms.size(); i++) {
+            goodsMapper.insertGoodsTag(PrGoodsTag.builder()
+                    .goodsNo(goodsNo)
+                    .tagSeq(i + 1)
+                    .tagNm(tagNms.get(i))
+                    .regId(userId)
+                    .modId(userId)
+                    .build());
         }
     }
 
