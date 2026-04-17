@@ -94,6 +94,39 @@ test.describe('상품 등록', () => {
     await page.getByPlaceholder('상품명을 입력하세요').waitFor()
   })
 
+  test('판매가와 공급원가 입력 시 마진율이 계산되어 표시된다', async ({ page }) => {
+    // salePrc=10000, suplyPrc=6250 → (10000-6250)/10000*100 = 37.5%
+    await page.getByRole('spinbutton').nth(0).fill('10000')
+    await page.getByRole('spinbutton').nth(2).fill('6250')
+
+    await expect(page.getByText('마진율 37.5%')).toBeVisible()
+  })
+
+  test('공급원가 미입력 시 마진율이 "-"로 표시된다', async ({ page }) => {
+    await page.getByRole('spinbutton').nth(0).fill('10000')
+    // suplyPrc 미입력 (기본값 0)
+
+    await expect(page.getByText('마진율 -')).toBeVisible()
+  })
+
+  test('공급원가가 판매가를 초과하면 에러 메시지가 표시되고 API가 호출되지 않는다', async ({ page }) => {
+    const postRequests: string[] = []
+    page.on('request', (req) => {
+      if (req.url().match(GOODS_CREATE_RE) && req.method() === 'POST') {
+        postRequests.push(req.url())
+      }
+    })
+
+    await fillRequiredFields(page)
+    // suplyPrc(3번째 spinbutton) > salePrc(1번째 spinbutton=10000)
+    await page.getByRole('spinbutton').nth(2).fill('20000')
+    await page.getByRole('button', { name: '상품 등록' }).click()
+
+    await expect(page.getByText('공급원가는 판매가를 초과할 수 없습니다.')).toBeVisible()
+    await page.waitForTimeout(300)
+    expect(postRequests).toHaveLength(0)
+  })
+
   test('카테고리와 배송정책을 선택하지 않으면 상품등록 API가 호출되지 않는다', async ({ page }) => {
     // page.on('request')로 실제 POST 요청 감시 (route interception 없이)
     const postRequests: string[] = []
@@ -109,6 +142,25 @@ test.describe('상품 등록', () => {
     // 짧은 대기 후 요청이 없음을 확인
     await page.waitForTimeout(300)
     expect(postRequests).toHaveLength(0)
+  })
+
+  test('인증 오류(401) 발생 시 에러 메시지가 표시된다', async ({ page }) => {
+    await page.route(GOODS_CREATE_RE, (route) => {
+      if (route.request().method() === 'POST') {
+        route.fulfill({
+          status: 401,
+          contentType: 'application/json',
+          body: JSON.stringify({ success: false, message: '인증이 필요합니다.' }),
+        })
+      } else {
+        route.fallback()
+      }
+    })
+
+    await fillRequiredFields(page)
+    await page.getByRole('button', { name: '상품 등록' }).click()
+
+    await expect(page.locator('.bg-red-50')).toBeVisible()
   })
 
   test('서버 오류(500) 발생 시 에러 메시지가 표시된다', async ({ page }) => {

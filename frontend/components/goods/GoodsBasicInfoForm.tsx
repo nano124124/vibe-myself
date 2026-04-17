@@ -125,12 +125,13 @@ const GoodsBasicInfoForm = ({
             type="number"
             min={0}
             placeholder="0"
-            className={inputCls}
+            className={errors.suplyPrc ? inputErrCls : inputCls}
           />
           <span className="shrink-0 text-sm text-slate-500">
             마진율 {mrgnRate !== null ? `${mrgnRate}%` : '-'}
           </span>
         </div>
+        {errors.suplyPrc && <span className={errCls}>{errors.suplyPrc.message}</span>}
       </div>
 
       <div className="flex flex-col gap-1">

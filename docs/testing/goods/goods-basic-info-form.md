@@ -34,8 +34,9 @@
 | # | 테스트명 | mock 설정 | 검증 내용 |
 |---|----------|-----------|-----------|
 | 1 | 카테고리와 배송정책을 선택하지 않으면 상품등록 API가 호출되지 않는다 | 참조 데이터 API mock, 상품등록 API 없음 | POST 요청 횟수 = 0 |
-| 2 | 서버 오류(500) 발생 시 에러 메시지가 표시된다 | `POST /api/admin/goods` → 500 | `.bg-red-50` 에러 블록 노출 |
-| 3 | 필수 항목을 모두 입력하고 등록하면 상품 목록 페이지로 이동한다 | `POST /api/admin/goods` → 200 | URL = `/admin/goods` |
+| 2 | 인증 오류(401) 발생 시 에러 메시지가 표시된다 | `POST /api/admin/goods` → 401 | `.bg-red-50` 에러 블록 노출 |
+| 3 | 서버 오류(500) 발생 시 에러 메시지가 표시된다 | `POST /api/admin/goods` → 500 | `.bg-red-50` 에러 블록 노출 |
+| 4 | 필수 항목을 모두 입력하고 등록하면 상품 목록 페이지로 이동한다 | `POST /api/admin/goods` → 200 | URL = `/admin/goods` |
 
 **주요 설정**:
 - `access_token` 쿠키: `JWT_SECRET`(.env.local)으로 서명한 유효한 JWT 사용 (authGuard가 `jwtVerify`로 서명 검증)

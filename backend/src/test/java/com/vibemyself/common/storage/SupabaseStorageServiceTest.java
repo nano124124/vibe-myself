@@ -25,7 +25,12 @@ class SupabaseStorageServiceTest {
         WebClient webClient = WebClient.builder()
                 .baseUrl(server.url("/").toString())
                 .build();
-        service = new SupabaseStorageService(webClient, server.url("/").toString(), "test-key", "goods-images");
+        SupabaseProperties properties = new SupabaseProperties(
+                server.url("/").toString(),
+                "test-key",
+                new SupabaseProperties.Storage("goods-images")
+        );
+        service = new SupabaseStorageService(webClient, properties);
     }
 
     @AfterEach

@@ -76,7 +76,7 @@ export default function GoodsCreatePage() {
 
   const { mutate: createGoods, isPending, error } = useGoodsCreate()
 
-  const { register, handleSubmit, control, watch, formState: { errors } } = useForm<GoodsCreateFormValues>({
+  const { register, handleSubmit, control, watch, setError, formState: { errors } } = useForm<GoodsCreateFormValues>({
     defaultValues: {
       goodsNm: '',
       goodsTpCd: 'NORMAL',
@@ -102,14 +102,11 @@ export default function GoodsCreatePage() {
   const [selectedOptGrpCds, setSelectedOptGrpCds] = useState<string[]>([])
   const [selectedOptItms, setSelectedOptItms] = useState<Record<string, string[]>>({})
   const [units, setUnits] = useState<UnitRequest[]>([])
+  const [tagInput, setTagInput] = useState('')
+  const [tagNms, setTagNms] = useState<string[]>([])
 
   useEffect(() => {
-    if (!optEnabled) {
-      setSelectedOptGrpCds([])
-      setSelectedOptItms({})
-      setUnits([])
-      return
-    }
+    if (!optEnabled) return
     setUnits(buildUnits(selectedOptGrpCds, optGroups, selectedOptItms))
   }, [optEnabled, selectedOptGrpCds, optGroups, selectedOptItms])
 
@@ -140,6 +137,10 @@ export default function GoodsCreatePage() {
 
   const onSubmit = (formValues: GoodsCreateFormValues) => {
     if (!formValues.ctgNo || !formValues.dlvPolicyNo) return
+    if (formValues.suplyPrc > 0 && formValues.suplyPrc > formValues.salePrc) {
+      setError('suplyPrc', { message: '공급원가는 판매가를 초과할 수 없습니다.' })
+      return
+    }
 
     const request: CreateGoodsRequest = {
       goodsNm: formValues.goodsNm,
@@ -154,7 +155,7 @@ export default function GoodsCreatePage() {
       saleEndDtm: formValues.saleEndDtm || undefined,
       saleStatCd: formValues.saleStatCd,
       dlvPolicyNo: formValues.dlvPolicyNo,
-      optGrpCds: selectedOptGrpCds,
+      tagNms: tagNms.length > 0 ? tagNms : undefined,
       units,
     }
 
@@ -206,6 +207,48 @@ export default function GoodsCreatePage() {
         </section>
 
         <section className="rounded-lg border border-slate-200 bg-white p-6">
+          <h2 className="mb-4 text-sm font-semibold text-slate-700">전시 태그</h2>
+          <div className="flex gap-2">
+            <input
+              type="text"
+              value={tagInput}
+              onChange={(e) => setTagInput(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  e.preventDefault()
+                  const tag = tagInput.trim()
+                  if (tag && !tagNms.includes(tag)) {
+                    setTagNms((prev) => [...prev, tag])
+                  }
+                  setTagInput('')
+                }
+              }}
+              placeholder="태그 입력 후 Enter"
+              className="flex-1 rounded border border-slate-300 px-3 py-2 text-sm focus:border-blue-400 focus:outline-none"
+            />
+          </div>
+          {tagNms.length > 0 && (
+            <div className="mt-3 flex flex-wrap gap-2">
+              {tagNms.map((tag) => (
+                <span
+                  key={tag}
+                  className="flex items-center gap-1 rounded-full bg-slate-100 px-3 py-1 text-sm text-slate-700"
+                >
+                  {tag}
+                  <button
+                    type="button"
+                    onClick={() => setTagNms((prev) => prev.filter((t) => t !== tag))}
+                    className="text-slate-400 hover:text-slate-600"
+                  >
+                    ×
+                  </button>
+                </span>
+              ))}
+            </div>
+          )}
+        </section>
+
+        <section className="rounded-lg border border-slate-200 bg-white p-6">
           <div className="mb-4 flex items-center justify-between">
             <h2 className="text-sm font-semibold text-slate-700">옵션 설정</h2>
             <div className="flex gap-4 text-sm">
@@ -214,7 +257,12 @@ export default function GoodsCreatePage() {
                   type="radio"
                   name="optEnabled"
                   checked={!optEnabled}
-                  onChange={() => setOptEnabled(false)}
+                  onChange={() => {
+                    setOptEnabled(false)
+                    setSelectedOptGrpCds([])
+                    setSelectedOptItms({})
+                    setUnits([])
+                  }}
                   className="accent-blue-600"
                 />
                 옵션 없음

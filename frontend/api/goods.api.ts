@@ -48,6 +48,8 @@ export const createGoods = (data: CreateGoodsRequest, images: File[]): Promise<C
   formData.append('data', new Blob([JSON.stringify(data)], { type: 'application/json' }))
   images.forEach((file) => formData.append('images', file))
   return api
-    .post<ApiResponse<CreateGoodsResponse>>('/api/admin/goods', formData)
+    .post<ApiResponse<CreateGoodsResponse>>('/api/admin/goods', formData, {
+      headers: { 'Content-Type': undefined },
+    })
     .then((res) => res.data.data)
 }

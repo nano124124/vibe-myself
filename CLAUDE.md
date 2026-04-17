@@ -25,7 +25,7 @@
 
 ## 최근 작업 기록
 <!-- session-wrap-up 스킬이 아래 줄을 자동 업데이트한다 -->
-@docs/progress/2026-04-06.md
+@docs/progress/2026-04-17.md
 
 
 

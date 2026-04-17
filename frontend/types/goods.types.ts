@@ -82,7 +82,7 @@ export interface CreateGoodsRequest {
   saleEndDtm?: string
   saleStatCd: SaleStatCd
   dlvPolicyNo: string
-  optGrpCds: string[]
+  tagNms?: string[]
   units: UnitRequest[]
 }
 

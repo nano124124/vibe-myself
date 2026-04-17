@@ -97,6 +97,9 @@ public class GoodsCreateService {
     }
 
     private void validate(CreateGoodsRequest request) {
+        if (request.suplyPrc() != null && request.suplyPrc().compareTo(request.salePrc()) > 0) {
+            throw new AppException(ErrorCode.NEGATIVE_MARGIN_RATE);
+        }
         if (!GoodsType.isValid(request.goodsTpCd())) {
             throw new AppException(ErrorCode.INVALID_GOODS_TYPE_CD);
         }
@@ -182,7 +185,7 @@ public class GoodsCreateService {
         }
     }
 
-    private BigDecimal calcMrgnRate(BigDecimal salePrc, BigDecimal suplyPrc) {
+    BigDecimal calcMrgnRate(BigDecimal salePrc, BigDecimal suplyPrc) {
         if (suplyPrc == null || salePrc.compareTo(BigDecimal.ZERO) == 0) {
             return null;
         }

@@ -4,6 +4,7 @@ import com.vibemyself.global.exception.AppException;
 import com.vibemyself.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -26,7 +27,7 @@ public class SupabaseStorageService {
     public String upload(MultipartFile file, String goodsNo) {
         String originalFilename = file.getOriginalFilename() != null ? file.getOriginalFilename() : "image";
         String filename = UUID.randomUUID() + "_" + originalFilename;
-        String path = goodsNo + "/" + filename;
+        String path = String.join("/", goodsNo, filename);
 
         byte[] bytes;
         try {
@@ -63,7 +64,7 @@ public class SupabaseStorageService {
                 .toList();
 
         try {
-            supabaseWebClient.delete()
+            supabaseWebClient.method(HttpMethod.DELETE)
                     .uri(b -> b.path("/storage/v1/object/{bucket}").build(properties.storage().goodsBucket()))
                     .header("Authorization", "Bearer " + properties.serviceRoleKey())
                     .bodyValue(Map.of("prefixes", paths))
