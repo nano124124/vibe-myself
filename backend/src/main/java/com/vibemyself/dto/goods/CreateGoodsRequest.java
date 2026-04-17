@@ -2,11 +2,11 @@ package com.vibemyself.dto.goods;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 
 public record CreateGoodsRequest(
@@ -26,7 +26,15 @@ public record CreateGoodsRequest(
         @Positive(message = "판매가는 0보다 커야 합니다.")
         BigDecimal salePrc,
 
+        BigDecimal normPrc,
+
+        BigDecimal suplyPrc,
+
         String goodsDesc,
+
+        LocalDateTime saleStartDtm,
+
+        LocalDateTime saleEndDtm,
 
         @NotBlank(message = "판매상태 코드는 필수입니다.")
         String saleStatCd,
@@ -34,12 +42,8 @@ public record CreateGoodsRequest(
         @NotBlank(message = "배송정책은 필수입니다.")
         String dlvPolicyNo,
 
-        List<String> imgUrls,
+        List<String> tagNms,
 
-        @NotEmpty(message = "옵션 그룹은 1개 이상 필요합니다.")
-        List<String> optGrpCds,
-
-        @NotEmpty(message = "단품은 1개 이상 필요합니다.")
         @Valid
         List<UnitRequest> units
 ) {}

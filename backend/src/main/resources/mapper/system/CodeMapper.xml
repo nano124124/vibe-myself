@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.vibemyself.mapper.system.CodeMapper">
+
+    <select id="selectCodesByGrp" parameterType="string" resultType="com.vibemyself.dto.system.CodeResponse">
+        SELECT CODE_CD   AS codeCd,
+               CODE_NM   AS codeNm,
+               SORT_ORD  AS sortOrd
+        FROM ST_CODE_DTL
+        WHERE CODE_GRP_CD = #{codeGrpCd}
+          AND USE_YN = 'Y'
+        ORDER BY SORT_ORD
+    </select>
+
+</mapper>

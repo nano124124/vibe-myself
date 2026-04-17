@@ -75,14 +75,33 @@ export interface CreateGoodsRequest {
   ctgNo: number
   brandNo?: number
   salePrc: number
+  normPrc?: number
+  suplyPrc?: number
   goodsDesc?: string
+  saleStartDtm?: string
+  saleEndDtm?: string
   saleStatCd: SaleStatCd
   dlvPolicyNo: string
-  imgUrls: string[]
-  optGrpCds: string[]
+  tagNms?: string[]
   units: UnitRequest[]
 }
 
 export interface CreateGoodsResponse {
   goodsNo: string
+}
+
+// React Hook Form 전용 폼 타입 (null 허용 필드 포함)
+export interface GoodsCreateFormValues {
+  goodsNm: string
+  goodsTpCd: GoodsTypeCd
+  ctgNo: number | null
+  brandNo: number | null
+  salePrc: number
+  normPrc: number
+  suplyPrc: number
+  goodsDesc: string
+  saleStartDtm: string
+  saleEndDtm: string
+  saleStatCd: SaleStatCd
+  dlvPolicyNo: string
 }

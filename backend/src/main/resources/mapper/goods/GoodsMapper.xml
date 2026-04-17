@@ -91,15 +91,29 @@
 
     <insert id="insertGoods" parameterType="com.vibemyself.entity.PrGoodsBase">
         <selectKey keyProperty="goodsNo" resultType="String" order="BEFORE">
-            SELECT 'G' || LPAD(CAST(nextval('seq_goods_no') AS TEXT), 6, '0')
+            SELECT 'G' || LPAD(CAST(nextval('pr_goods_base_goods_no_seq') AS TEXT), 6, '0')
         </selectKey>
         INSERT INTO PR_GOODS_BASE (
-            GOODS_NO, GOODS_NM, GOODS_TP_CD, SALE_PRC,
+            GOODS_NO, GOODS_NM, GOODS_TP_CD,
             CTG_NO, BRAND_NO, SALE_STAT_CD, DLV_POLICY_NO, GOODS_DESC,
+            SALE_START_DTM, SALE_END_DTM,
             REG_ID, MOD_ID
         ) VALUES (
-            #{goodsNo}, #{goodsNm}, #{goodsTpCd}, #{salePrc},
+            #{goodsNo}, #{goodsNm}, #{goodsTpCd},
             #{ctgNo}, #{brandNo}, #{saleStatCd}, #{dlvPolicyNo}, #{goodsDesc},
+            #{saleStartDtm}, #{saleEndDtm},
+            #{regId}, #{modId}
+        )
+    </insert>
+
+    <insert id="insertGoodsPrc" parameterType="com.vibemyself.entity.PrGoodsPrc">
+        INSERT INTO PR_GOODS_PRC (
+            GOODS_NO, APLY_FROM_DT, APLY_TO_DT,
+            SALE_PRC, NORM_PRC, SUPLY_PRC, MRGN_RATE,
+            REG_ID, MOD_ID
+        ) VALUES (
+            #{goodsNo}, #{aplyFromDt}, #{aplyToDt},
+            #{salePrc}, #{normPrc}, #{suplyPrc}, #{mrgnRate},
             #{regId}, #{modId}
         )
     </insert>
@@ -109,9 +123,9 @@
         VALUES (#{goodsNo}, #{imgSeq}, #{imgUrl}, #{sortOrd}, #{regId}, #{modId})
     </insert>
 
-    <insert id="insertGoodsOpt" parameterType="com.vibemyself.entity.PrGoodsOpt">
-        INSERT INTO PR_GOODS_OPT (GOODS_NO, OPT_GRP_CD, SORT_ORD, REG_ID, MOD_ID)
-        VALUES (#{goodsNo}, #{optGrpCd}, #{sortOrd}, #{regId}, #{modId})
+    <insert id="insertGoodsTag" parameterType="com.vibemyself.entity.PrGoodsTag">
+        INSERT INTO PR_GOODS_TAG (GOODS_NO, TAG_SEQ, TAG_NM, REG_ID, MOD_ID)
+        VALUES (#{goodsNo}, #{tagSeq}, #{tagNm}, #{regId}, #{modId})
     </insert>
 
 </mapper>

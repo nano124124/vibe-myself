@@ -43,7 +43,13 @@ export const getOptGroups = (): Promise<OptGrpResponse[]> =>
     .get<ApiResponse<OptGrpResponse[]>>('/api/admin/goods/opt-groups')
     .then((res) => res.data.data)
 
-export const createGoods = (data: CreateGoodsRequest): Promise<CreateGoodsResponse> =>
-  api
-    .post<ApiResponse<CreateGoodsResponse>>('/api/admin/goods', data)
+export const createGoods = (data: CreateGoodsRequest, images: File[]): Promise<CreateGoodsResponse> => {
+  const formData = new FormData()
+  formData.append('data', new Blob([JSON.stringify(data)], { type: 'application/json' }))
+  images.forEach((file) => formData.append('images', file))
+  return api
+    .post<ApiResponse<CreateGoodsResponse>>('/api/admin/goods', formData, {
+      headers: { 'Content-Type': undefined },
+    })
     .then((res) => res.data.data)
+}

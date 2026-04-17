@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test'
 
-// middleware의 authGuard를 통과하는 최소한의 fake JWT (role: ROLE_ADMIN)
-const FAKE_ADMIN_JWT = `eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiUk9MRV9BRE1JTiJ9.fake`
+// middleware의 authGuard(jwtVerify)를 통과하는 유효한 JWT (role: ROLE_ADMIN, .env.local 의 JWT_SECRET으로 서명)
+const FAKE_ADMIN_JWT = `eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiUk9MRV9BRE1JTiJ9.or1nnDYfW4mtyPBCBUdR4uamUe3UyfpMcjb0El17i14`
 
 const LOGIN_API = '**/api/admin/system/login'
 

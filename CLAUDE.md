@@ -25,7 +25,7 @@
 
 ## 최근 작업 기록
 <!-- session-wrap-up 스킬이 아래 줄을 자동 업데이트한다 -->
-@docs/progress/2026-03-30.md
+@docs/progress/2026-04-17.md
 
 
 
@@ -94,6 +94,7 @@ NEXT_PUBLIC_API_URL=http://localhost:8080
 - **프론트엔드 개발 시 작업 전 반드시 `@docs/frontend/coding-guide.md` 를 읽고 규칙을 준수한다.**
 - **작업 범위가 크거나 설계 판단이 필요한 경우, 구현 전 `docs/plans` 에 계획을 먼저 작성하고 확인받는다.**
 - **작업 시 참고한 파일을 반드시 마지막에 명시한다.**
+- **`frontend/components/` 하위 컴포넌트를 Write/Edit한 직후, `form-validation-tests` 스킬을 반드시 호출한다. 훅 메시지(`[MANDATORY]`)가 출력되면 즉시 실행한다. 스킬 실행 없이 "완료"를 선언하지 않는다.**
 
 ## 백엔드 연동
 

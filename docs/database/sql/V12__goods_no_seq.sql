@@ -1,0 +1,1 @@
+CREATE SEQUENCE seq_goods_no START 1;

@@ -1,0 +1,5 @@
+-- PR_GOODS_PRC 정상가, 공급원가, 마진율 컬럼 추가
+ALTER TABLE PR_GOODS_PRC
+    ADD COLUMN NORM_PRC   NUMERIC(15,2) NULL,  -- 정상가
+    ADD COLUMN SUPLY_PRC  NUMERIC(15,2) NULL,  -- 공급원가
+    ADD COLUMN MRGN_RATE  DECIMAL(4,2)  NULL;  -- 마진율 (%)

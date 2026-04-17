@@ -365,12 +365,13 @@
 | `GOODS_NO` | `VARCHAR(15)` | Y | | PK, 상품번호 |
 | `GOODS_NM` | `VARCHAR(200)` | Y | | 상품명 |
 | `GOODS_TP_CD` | `VARCHAR(10)` | Y | | 상품유형코드 (일반상품/e쿠폰/사은품 등) |
-| `SALE_PRC` | `NUMERIC(15,2)` | Y | | 기본 판매가 |
 | `CTG_NO` | `BIGINT` | Y | | FK → PR_CTG_BASE |
 | `BRAND_NO` | `BIGINT` | N | | FK → PR_BRAND_BASE |
 | `SALE_STAT_CD` | `VARCHAR(10)` | Y | | 판매상태 코드 (판매중/판매중지) |
 | `DLV_POLICY_NO` | `VARCHAR(10)` | Y | | FK → PR_DLV_POLICY, 배송정책 |
 | `GOODS_DESC` | `TEXT` | N | | 상품 상세 설명 |
+| `SALE_START_DTM` | `TIMESTAMP` | N | | 판매시작일시 |
+| `SALE_END_DTM` | `TIMESTAMP` | N | | 판매종료일시 |
 | `REG_DTM` | `TIMESTAMP` | Y | `now()` | 등록일시 |
 | `REG_ID` | `VARCHAR(50)` | Y | | 등록자 |
 | `MOD_DTM` | `TIMESTAMP` | Y | `now()` | 수정일시 |
@@ -379,6 +380,28 @@
 - FK: `CTG_NO` → `PR_CTG_BASE.CTG_NO`
 - FK: `BRAND_NO` → `PR_BRAND_BASE.BRAND_NO`
 - FK: `DLV_POLICY_NO` → `PR_DLV_POLICY.DLV_POLICY_NO`
+
+---
+
+### PR_GOODS_PRC (상품 가격 선분)
+
+| 컬럼명 | 타입 | NOT NULL | 기본값 | 설명 |
+|--------|------|----------|--------|------|
+| `GOODS_NO` | `VARCHAR(15)` | Y | | PK(1), FK → PR_GOODS_BASE |
+| `APLY_FROM_DT` | `VARCHAR(8)` | Y | | PK(2), 적용시작일자 (yyyyMMdd) |
+| `APLY_TO_DT` | `VARCHAR(8)` | Y | | 적용종료일자 (yyyyMMdd, 현재가격: `99991231`) |
+| `SALE_PRC` | `NUMERIC(15,2)` | Y | | 판매가 |
+| `NORM_PRC` | `NUMERIC(15,2)` | N | | 정상가 |
+| `SUPLY_PRC` | `NUMERIC(15,2)` | N | | 공급원가 |
+| `MRGN_RATE` | `DECIMAL(4,2)` | N | | 마진율 (%) |
+| `REG_DTM` | `TIMESTAMP` | Y | `now()` | 등록일시 |
+| `REG_ID` | `VARCHAR(50)` | Y | | 등록자 |
+| `MOD_DTM` | `TIMESTAMP` | Y | `now()` | 수정일시 |
+| `MOD_ID` | `VARCHAR(50)` | Y | | 수정자 |
+
+- FK: `GOODS_NO` → `PR_GOODS_BASE.GOODS_NO`
+- INDEX: `IDX_PR_GOODS_PRC_DT` (`GOODS_NO`, `APLY_FROM_DT`, `APLY_TO_DT`)
+- 현재 유효 가격 조건: `APLY_FROM_DT <= TODAY AND APLY_TO_DT >= TODAY`
 
 ---
 

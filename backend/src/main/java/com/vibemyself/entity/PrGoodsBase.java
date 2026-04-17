@@ -6,7 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
-import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 @Getter
 @SuperBuilder
@@ -17,10 +17,11 @@ public class PrGoodsBase extends CommonEntity {
     private String goodsNo;
     private String goodsNm;
     private String goodsTpCd;
-    private BigDecimal salePrc;
     private Long ctgNo;
     private Long brandNo;
     private String saleStatCd;
     private String dlvPolicyNo;
     private String goodsDesc;
+    private LocalDateTime saleStartDtm;
+    private LocalDateTime saleEndDtm;
 }

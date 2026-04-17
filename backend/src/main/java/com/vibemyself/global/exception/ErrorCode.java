@@ -23,11 +23,17 @@ public enum ErrorCode {
     CATEGORY_MAX_DEPTH_EXCEEDED("3단계 이하로는 카테고리를 등록할 수 없습니다.", 400),
 
     // ── 상품 ──────────────────────────────────────────────
+    INVALID_GOODS_TYPE_CD("유효하지 않은 상품유형 코드입니다.", 400),
+    INVALID_SALE_STAT_CD("유효하지 않은 판매상태 코드입니다.", 400),
     BRAND_NOT_FOUND("브랜드를 찾을 수 없습니다.", 404),
     DLV_POLICY_NOT_FOUND("배송정책을 찾을 수 없습니다.", 404),
     OPT_GRP_NOT_FOUND("옵션 그룹을 찾을 수 없습니다.", 404),
     OPT_ITM_NOT_FOUND("옵션 항목을 찾을 수 없습니다.", 404),
-    GOODS_IMG_LIMIT_EXCEEDED("상품 이미지는 최대 5장까지 등록할 수 있습니다.", 400);
+    GOODS_IMG_LIMIT_EXCEEDED("상품 이미지는 최대 5장까지 등록할 수 있습니다.", 400),
+    NEGATIVE_MARGIN_RATE("공급원가는 판매가를 초과할 수 없습니다.", 400),
+
+    // ── 스토리지 ──────────────────────────────────────────
+    IMAGE_UPLOAD_FAILED("이미지 업로드에 실패했습니다.", 500);
 
     private final String message;
     private final int status;
