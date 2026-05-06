@@ -128,4 +128,63 @@
         VALUES (#{goodsNo}, #{tagSeq}, #{tagNm}, #{regId}, #{modId})
     </insert>
 
+    <resultMap id="goodsListItemResultMap" type="com.vibemyself.dto.goods.GoodsListItemResponse">
+        <result property="goodsNo"      column="GOODS_NO"/>
+        <result property="goodsNm"      column="GOODS_NM"/>
+        <result property="goodsTpCd"    column="GOODS_TP_CD"/>
+        <result property="saleStatCd"   column="SALE_STAT_CD"/>
+        <result property="ctgNm"        column="CTG_NM"/>
+        <result property="brandNm"      column="BRAND_NM"/>
+        <result property="salePrc"      column="SALE_PRC"/>
+        <result property="thumbImgUrl"  column="THUMB_IMG_URL"/>
+        <result property="regDtm"       column="REG_DTM"/>
+    </resultMap>
+
+    <select id="selectGoodsList" resultMap="goodsListItemResultMap">
+        SELECT
+            g.GOODS_NO,
+            g.GOODS_NM,
+            g.GOODS_TP_CD,
+            g.SALE_STAT_CD,
+            c.CTG_NM,
+            b.BRAND_NM,
+            p.SALE_PRC,
+            (SELECT IMG_URL FROM PR_GOODS_IMG
+             WHERE GOODS_NO = g.GOODS_NO AND SORT_ORD = 1 LIMIT 1) AS THUMB_IMG_URL,
+            g.REG_DTM
+        FROM PR_GOODS_BASE g
+        JOIN PR_CTG_BASE c ON c.CTG_NO = g.CTG_NO
+        LEFT JOIN PR_BRAND_BASE b ON b.BRAND_NO = g.BRAND_NO
+        JOIN PR_GOODS_PRC p ON p.GOODS_NO = g.GOODS_NO AND p.APLY_TO_DT = '99991231'
+        <where>
+            <if test="goodsNm != null and goodsNm != ''">
+                AND g.GOODS_NM LIKE CONCAT('%', #{goodsNm}, '%')
+            </if>
+            <if test="saleStatCd != null and saleStatCd != ''">
+                AND g.SALE_STAT_CD = #{saleStatCd}
+            </if>
+            <if test="ctgNo != null">
+                AND g.CTG_NO = #{ctgNo}
+            </if>
+        </where>
+        ORDER BY g.REG_DTM DESC
+        LIMIT #{size} OFFSET #{offset}
+    </select>
+
+    <select id="countGoodsList" resultType="long">
+        SELECT COUNT(*)
+        FROM PR_GOODS_BASE g
+        <where>
+            <if test="goodsNm != null and goodsNm != ''">
+                AND g.GOODS_NM LIKE CONCAT('%', #{goodsNm}, '%')
+            </if>
+            <if test="saleStatCd != null and saleStatCd != ''">
+                AND g.SALE_STAT_CD = #{saleStatCd}
+            </if>
+            <if test="ctgNo != null">
+                AND g.CTG_NO = #{ctgNo}
+            </if>
+        </where>
+    </select>
+
 </mapper>
