@@ -90,6 +90,38 @@ export interface CreateGoodsResponse {
   goodsNo: string
 }
 
+// ── 공통 페이지 응답 ───────────────────────────────
+export interface PageResponse<T> {
+  content: T[]
+  page: number
+  size: number
+  totalElements: number
+  totalPages: number
+}
+
+// ── 상품 목록 ─────────────────────────────────────
+export type GoodsSaleStatCd = 'SELLING' | 'SOLD_OUT' | 'STOPPED'
+
+export interface GoodsListItemResponse {
+  goodsNo: string
+  goodsNm: string
+  goodsTpCd: GoodsTypeCd
+  saleStatCd: GoodsSaleStatCd
+  ctgNm: string
+  brandNm: string | null
+  salePrc: number
+  thumbImgUrl: string | null
+  regDtm: string
+}
+
+export interface GoodsListSearchParams {
+  goodsNm?: string
+  saleStatCd?: GoodsSaleStatCd | ''
+  ctgNo?: number
+  page?: number
+  size?: number
+}
+
 // React Hook Form 전용 폼 타입 (null 허용 필드 포함)
 export interface GoodsCreateFormValues {
   goodsNm: string

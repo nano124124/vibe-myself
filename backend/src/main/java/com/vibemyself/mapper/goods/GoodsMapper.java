@@ -1,5 +1,7 @@
 package com.vibemyself.mapper.goods;
 
+import com.vibemyself.dto.goods.GoodsListItemResponse;
+import com.vibemyself.dto.goods.GoodsListRequest;
 import com.vibemyself.entity.PrBrandBase;
 import com.vibemyself.entity.PrDlvPolicy;
 import com.vibemyself.entity.PrGoodsBase;
@@ -40,4 +42,8 @@ public interface GoodsMapper {
     void insertGoodsImg(PrGoodsImg goodsImg);
 
     void insertGoodsTag(PrGoodsTag goodsTag);
+
+    List<GoodsListItemResponse> selectGoodsList(GoodsListRequest request);
+
+    long countGoodsList(GoodsListRequest request);
 }
