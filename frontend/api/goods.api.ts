@@ -7,7 +7,10 @@ import type {
   CreateGoodsRequest,
   CreateGoodsResponse,
   DlvPolicyResponse,
+  GoodsListItemResponse,
+  GoodsListSearchParams,
   OptGrpResponse,
+  PageResponse,
   UpdateCategoryRequest,
 } from '@/types/goods.types'
 
@@ -53,3 +56,8 @@ export const createGoods = (data: CreateGoodsRequest, images: File[]): Promise<C
     })
     .then((res) => res.data.data)
 }
+
+export const getAdminGoodsList = (params: GoodsListSearchParams): Promise<PageResponse<GoodsListItemResponse>> =>
+  api
+    .get<ApiResponse<PageResponse<GoodsListItemResponse>>>('/api/admin/goods', { params })
+    .then((res) => res.data.data)
