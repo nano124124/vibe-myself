@@ -5,31 +5,38 @@ description: "vibe-myself 풀스택 모듈 스캐폴딩 오케스트레이터. '
 
 # Module Scaffold Orchestrator
 
-DB 설계 → BE 레이어 → FE 레이어 → QA 검증의 풀스택 파이프라인을 자동화한다.
+DB 설계 → DB 마이그레이션 → BE 레이어 → FE 레이어 → QA 검증의 풀스택 파이프라인을 자동화한다.
 
 ## 실행 모드: 서브 에이전트 (순차 파이프라인)
 
 | Phase | 에이전트 | subagent_type | model | 입력 | 출력 |
 |-------|---------|--------------|-------|------|------|
-| Phase 2 | db-designer | `db-designer` | opus | `_workspace/00_input.md` | `_workspace/02_db_design.md` |
-| Phase 2.5 | db-migrator | `db-migrator` | opus | `_workspace/02_db_design.md` | `_workspace/02_migrate_result.md` |
-| Phase 3 | backend-scaffolder | `backend-scaffolder` | opus | `_workspace/02_db_design.md` | `_workspace/03_backend_spec.md` + 소스 |
-| Phase 4 | frontend-scaffolder | `frontend-scaffolder` | opus | `_workspace/03_backend_spec.md` | `_workspace/03_frontend_spec.md` + 소스 |
-| Phase 5 | qa-reviewer | `qa-reviewer` | opus | `_workspace/03_*` + 소스 | `_workspace/04_qa_report.md` |
+| Phase 2 | db-designer | `general-purpose` | opus | `_workspace/00_input.md` | `_workspace/02_db_design.md` |
+| Phase 2.5 | db-migrator | `general-purpose` | opus | `_workspace/02_db_design.md` | `_workspace/02_migrate_result.md` |
+| Phase 3 | backend-scaffolder | `general-purpose` | opus | `_workspace/02_db_design.md` | `_workspace/03_backend_spec.md` + 소스 |
+| Phase 4 | frontend-scaffolder | `general-purpose` | opus | `_workspace/03_backend_spec.md` | `_workspace/03_frontend_spec.md` + 소스 |
+| Phase 5 | qa-reviewer | `general-purpose` | opus | `_workspace/03_*` + 소스 | `_workspace/04_qa_report.md` |
 
 ## 워크플로우
 
-### Phase 0: 컨텍스트 확인
+### Phase 0: 프로젝트 루트 확인 + 컨텍스트 확인
 
-`/Users/nyj/Documents/git/vibe-myself/_workspace/` 존재 여부 확인:
+```bash
+# 프로젝트 루트 동적 확인 — 환경에 무관하게 동작
+PROJECT_ROOT=$(pwd)
+WORKSPACE="$PROJECT_ROOT/_workspace"
+```
 
-- **미존재** → 초기 실행. Phase 1으로 진행
-- **존재 + 부분 수정 요청** ("BE만 다시", "FE만 수정") → 해당 Phase 에이전트만 재호출. 기존 `_workspace/` 파일 보존
-- **존재 + 새 기능 요청** → 기존 `_workspace/`를 `_workspace_{YYYYMMDD_HHMMSS}/`로 이동 후 Phase 1 진행
+`$WORKSPACE` 존재 여부 확인:
+- **미존재** → 초기 실행. Phase 1로 진행
+- **존재 + 부분 수정 요청** ("BE만 다시", "FE만 수정") → 해당 Phase만 재호출, 기존 파일 보존
+- **존재 + 새 기능 요청** → 기존 폴더를 `_workspace_{YYYYMMDD_HHMMSS}/`로 이동 후 Phase 1 진행
+
+이후 모든 Phase에서 `$PROJECT_ROOT`, `$WORKSPACE`를 Agent 프롬프트에 전달한다.
 
 ### Phase 1: 입력 파싱
 
-사용자 요청에서 다음을 추출하여 `_workspace/00_input.md` 작성:
+`$WORKSPACE/00_input.md` 작성:
 
 ```markdown
 ## 요청 요약
@@ -60,12 +67,13 @@ DB 설계 → BE 레이어 → FE 레이어 → QA 검증의 풀스택 파이프
 
 ```
 Agent(
-  subagent_type: "db-designer",
+  subagent_type: "general-purpose",
   model: "opus",
   prompt: "
-    _workspace/00_input.md를 읽고 DDL을 설계한다.
-    db-design 스킬 가이드(.claude/skills/db-design/SKILL.md)를 Read하여 따른다.
-    산출물: /Users/nyj/Documents/git/vibe-myself/_workspace/02_db_design.md
+    {PROJECT_ROOT}/.claude/agents/db-designer.md 를 Read하여 역할과 원칙을 숙지한다.
+    {PROJECT_ROOT}/.claude/skills/db-design/SKILL.md 를 Read하여 절차를 따른다.
+    {WORKSPACE}/00_input.md 를 읽고 DDL을 설계한다.
+    산출물: {WORKSPACE}/02_db_design.md
   "
 )
 ```
@@ -76,18 +84,18 @@ Phase 2 완료 후 실행:
 
 ```
 Agent(
-  subagent_type: "db-migrator",
+  subagent_type: "general-purpose",
   model: "opus",
   prompt: "
-    _workspace/02_db_design.md의 DDL을 MCP postgres에 실행한다.
-    db-migrate 스킬 가이드(.claude/skills/db-migrate/SKILL.md)를 Read하여 따른다.
-    프로젝트 루트: /Users/nyj/Documents/git/vibe-myself
-    산출물: /Users/nyj/Documents/git/vibe-myself/_workspace/02_migrate_result.md
+    {PROJECT_ROOT}/.claude/agents/db-migrator.md 를 Read하여 역할과 원칙을 숙지한다.
+    {PROJECT_ROOT}/.claude/skills/db-migrate/SKILL.md 를 Read하여 절차를 따른다.
+    {WORKSPACE}/02_db_design.md 의 DDL을 MCP postgres에 실행한다.
+    산출물: {WORKSPACE}/02_migrate_result.md
   "
 )
 ```
 
-`_workspace/02_migrate_result.md`에 FAILED 항목이 있으면 사용자에게 알리고 계속 진행 여부를 확인한다.
+`$WORKSPACE/02_migrate_result.md`에 FAILED 항목이 있으면 사용자에게 알리고 계속 진행 여부를 확인한다.
 
 ### Phase 3: BE 레이어 생성
 
@@ -95,13 +103,14 @@ Phase 2.5 완료 후 실행:
 
 ```
 Agent(
-  subagent_type: "backend-scaffolder",
+  subagent_type: "general-purpose",
   model: "opus",
   prompt: "
-    _workspace/00_input.md, _workspace/02_db_design.md를 읽고 BE 레이어를 생성한다.
-    backend-layer 스킬 가이드(.claude/skills/backend-layer/SKILL.md)를 Read하여 따른다.
-    프로젝트 루트: /Users/nyj/Documents/git/vibe-myself
-    산출물: /Users/nyj/Documents/git/vibe-myself/_workspace/03_backend_spec.md + 실제 소스 파일
+    {PROJECT_ROOT}/.claude/agents/backend-scaffolder.md 를 Read하여 역할과 원칙을 숙지한다.
+    {PROJECT_ROOT}/.claude/skills/backend-layer/SKILL.md 를 Read하여 절차를 따른다.
+    {WORKSPACE}/00_input.md, {WORKSPACE}/02_db_design.md 를 읽고 BE 레이어를 생성한다.
+    프로젝트 루트: {PROJECT_ROOT}
+    산출물: {WORKSPACE}/03_backend_spec.md + 실제 소스 파일
   "
 )
 ```
@@ -112,14 +121,15 @@ Phase 3 완료 후 실행:
 
 ```
 Agent(
-  subagent_type: "frontend-scaffolder",
+  subagent_type: "general-purpose",
   model: "opus",
   prompt: "
-    _workspace/00_input.md, _workspace/03_backend_spec.md를 읽고 FE 레이어를 생성한다.
-    frontend-layer 스킬 가이드(.claude/skills/frontend-layer/SKILL.md)를 Read하여 따른다.
-    프로젝트 루트: /Users/nyj/Documents/git/vibe-myself
-    산출물: /Users/nyj/Documents/git/vibe-myself/_workspace/03_frontend_spec.md + 실제 소스 파일
-    컴포넌트 생성 후 form-validation-tests 스킬을 반드시 호출한다.
+    {PROJECT_ROOT}/.claude/agents/frontend-scaffolder.md 를 Read하여 역할과 원칙을 숙지한다.
+    {PROJECT_ROOT}/.claude/skills/frontend-layer/SKILL.md 를 Read하여 절차를 따른다.
+    {WORKSPACE}/00_input.md, {WORKSPACE}/03_backend_spec.md 를 읽고 FE 레이어를 생성한다.
+    프로젝트 루트: {PROJECT_ROOT}
+    산출물: {WORKSPACE}/03_frontend_spec.md + 실제 소스 파일
+    components/ 하위 파일 생성 후 form-validation-tests 스킬을 반드시 호출한다.
   "
 )
 ```
@@ -130,19 +140,21 @@ Phase 3, 4 완료 후 실행:
 
 ```
 Agent(
-  subagent_type: "qa-reviewer",
+  subagent_type: "general-purpose",
   model: "opus",
   prompt: "
-    _workspace/03_backend_spec.md, _workspace/03_frontend_spec.md와 실제 소스 파일을 비교하여 인터페이스 정합성을 검증한다.
-    프로젝트 루트: /Users/nyj/Documents/git/vibe-myself
-    산출물: /Users/nyj/Documents/git/vibe-myself/_workspace/04_qa_report.md
+    {PROJECT_ROOT}/.claude/agents/qa-reviewer.md 를 Read하여 역할과 원칙을 숙지한다.
+    {WORKSPACE}/03_backend_spec.md, {WORKSPACE}/03_frontend_spec.md 와 실제 소스 파일을 비교하여
+    인터페이스 정합성을 검증한다.
+    프로젝트 루트: {PROJECT_ROOT}
+    산출물: {WORKSPACE}/04_qa_report.md
   "
 )
 ```
 
 ### Phase 6: 결과 요약
 
-1. `_workspace/04_qa_report.md` 내용 요약
+1. `$WORKSPACE/04_qa_report.md` 내용 요약
 2. 생성 파일 목록 출력
 3. CRITICAL 이슈 있으면 명시 및 수정 여부 확인
 4. 사용자에게 다음 작업 제안 (예: 브랜치 생성, 테스트 실행, 커밋)
@@ -162,12 +174,12 @@ Agent(
 
 ```
 사용자 요청
-    → _workspace/00_input.md
-    → db-designer:        _workspace/02_db_design.md
-    → db-migrator:        _workspace/02_migrate_result.md (postgres 적용)
-    → backend-scaffolder: _workspace/03_backend_spec.md + BE 소스
-    → frontend-scaffolder: _workspace/03_frontend_spec.md + FE 소스
-    → qa-reviewer: _workspace/04_qa_report.md
+    → $WORKSPACE/00_input.md
+    → db-designer:        $WORKSPACE/02_db_design.md
+    → db-migrator:        $WORKSPACE/02_migrate_result.md (postgres 적용)
+    → backend-scaffolder: $WORKSPACE/03_backend_spec.md + BE 소스
+    → frontend-scaffolder: $WORKSPACE/03_frontend_spec.md + FE 소스
+    → qa-reviewer:        $WORKSPACE/04_qa_report.md
     → 최종 요약 보고
 ```
 
@@ -176,13 +188,14 @@ Agent(
 ### 정상 흐름
 
 1. 사용자: "order 주문 목록 API와 어드민 페이지 만들어줘"
-2. Phase 1: `_workspace/00_input.md` 생성 (module: order, 기능: 목록 조회, 레이어: ALL)
-3. Phase 2: `OP_ORD_BASE` DDL 설계 → `_workspace/02_db_design.md`
-4. Phase 2.5: MCP postgres로 테이블 생성 → `_workspace/02_migrate_result.md`
-5. Phase 3: `OpOrdBase` Entity, `OrderListService`, `OrderController` 등 BE 레이어 생성
-6. Phase 4: `order.types.ts`, `order.api.ts`, `useAdminOrderList.ts`, `OrderListTable.tsx`, `page.tsx` 생성
-7. Phase 5: DTO shape vs 타입 비교 → `_workspace/04_qa_report.md`
-8. Phase 6: 결과 요약, 생성 파일 목록, QA 이슈 보고
+2. Phase 0: `pwd` → PROJECT_ROOT 확인
+3. Phase 1: `_workspace/00_input.md` 생성 (module: order, 기능: 목록 조회, 레이어: ALL)
+4. Phase 2: `OP_ORD_BASE` DDL 설계 → `_workspace/02_db_design.md`
+5. Phase 2.5: MCP postgres로 테이블 생성 → `_workspace/02_migrate_result.md`
+6. Phase 3: `OpOrdBase` Entity, `OrderListService`, `OrderController` 등 BE 레이어 생성
+7. Phase 4: `order.types.ts`, `order.api.ts`, `useAdminOrderList.ts`, `OrderListTable.tsx`, `page.tsx` 생성
+8. Phase 5: DTO shape vs 타입 비교 → `_workspace/04_qa_report.md`
+9. Phase 6: 결과 요약, 생성 파일 목록, QA 이슈 보고
 
 ### 에러 흐름
 
