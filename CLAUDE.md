@@ -99,3 +99,18 @@ NEXT_PUBLIC_API_URL=http://localhost:8080
 ## 백엔드 연동
 
 개발 환경에서 `/api/*` 요청은 `next.config.ts`의 rewrites를 통해 `:8080`으로 프록시된다.
+
+---
+
+## 하네스: vibe-module-harness
+
+**목표:** DB 설계 → BE 레이어 → FE 레이어 → QA 검증의 풀스택 모듈 스캐폴딩 자동화
+
+**트리거:** 새 기능/모듈 구현 요청 시 `module-scaffold` 스킬을 사용한다. DDL만 필요하면 `db-design`, BE만 필요하면 `backend-layer`, FE만 필요하면 `frontend-layer` 스킬을 사용한다. 단순 질문은 직접 응답 가능.
+
+**에이전트:** `.claude/agents/` — `db-designer`, `backend-scaffolder`, `frontend-scaffolder`, `qa-reviewer`
+
+**변경 이력:**
+| 날짜 | 변경 내용 | 대상 | 사유 |
+|------|----------|------|------|
+| 2026-06-02 | 초기 구성 | 전체 | 풀스택 모듈 개발 반복 패턴 자동화 |
