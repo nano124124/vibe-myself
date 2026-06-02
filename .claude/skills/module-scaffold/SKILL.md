@@ -12,6 +12,7 @@ DB 설계 → BE 레이어 → FE 레이어 → QA 검증의 풀스택 파이프
 | Phase | 에이전트 | subagent_type | model | 입력 | 출력 |
 |-------|---------|--------------|-------|------|------|
 | Phase 2 | db-designer | `db-designer` | opus | `_workspace/00_input.md` | `_workspace/02_db_design.md` |
+| Phase 2.5 | db-migrator | `db-migrator` | opus | `_workspace/02_db_design.md` | `_workspace/02_migrate_result.md` |
 | Phase 3 | backend-scaffolder | `backend-scaffolder` | opus | `_workspace/02_db_design.md` | `_workspace/03_backend_spec.md` + 소스 |
 | Phase 4 | frontend-scaffolder | `frontend-scaffolder` | opus | `_workspace/03_backend_spec.md` | `_workspace/03_frontend_spec.md` + 소스 |
 | Phase 5 | qa-reviewer | `qa-reviewer` | opus | `_workspace/03_*` + 소스 | `_workspace/04_qa_report.md` |
@@ -50,8 +51,8 @@ DB 설계 → BE 레이어 → FE 레이어 → QA 검증의 풀스택 파이프
 ```
 
 `레이어` 값에 따라 실행할 Phase를 결정한다:
-- `ALL` → Phase 2, 3, 4, 5 모두
-- `DB만` → Phase 2만
+- `ALL` → Phase 2, 2.5, 3, 4, 5 모두
+- `DB만` → Phase 2, 2.5
 - `BE만` → Phase 3만 (`_workspace/02_db_design.md` 또는 기존 Entity 파일로 대체)
 - `FE만` → Phase 4만 (`_workspace/03_backend_spec.md` 또는 기존 API 파일로 대체)
 
@@ -69,9 +70,28 @@ Agent(
 )
 ```
 
-### Phase 3: BE 레이어 생성
+### Phase 2.5: DB 마이그레이션
 
 Phase 2 완료 후 실행:
+
+```
+Agent(
+  subagent_type: "db-migrator",
+  model: "opus",
+  prompt: "
+    _workspace/02_db_design.md의 DDL을 MCP postgres에 실행한다.
+    db-migrate 스킬 가이드(.claude/skills/db-migrate/SKILL.md)를 Read하여 따른다.
+    프로젝트 루트: /Users/nyj/Documents/git/vibe-myself
+    산출물: /Users/nyj/Documents/git/vibe-myself/_workspace/02_migrate_result.md
+  "
+)
+```
+
+`_workspace/02_migrate_result.md`에 FAILED 항목이 있으면 사용자에게 알리고 계속 진행 여부를 확인한다.
+
+### Phase 3: BE 레이어 생성
+
+Phase 2.5 완료 후 실행:
 
 ```
 Agent(
@@ -132,6 +152,8 @@ Agent(
 | 상황 | 전략 |
 |------|------|
 | Phase 2 실패 | `docs/database/naming-convention.md` 확인 후 재시도. 재실패 시 사용자에게 테이블 요구사항 확인 요청 |
+| Phase 2.5 실패 (SQL 에러) | 사용자에게 DDL 수정 요청 후 중단 |
+| Phase 2.5 실패 (MCP 연결) | 마이그레이션 스킵, `_workspace/02_migrate_result.md`에 "수동 실행 필요" 명시 후 Phase 3 진행 |
 | Phase 3 실패 | `_workspace/02_db_design.md` 내용 확인 후 재시도 |
 | Phase 4 실패 | `_workspace/03_backend_spec.md` 내용 확인 후 재시도 |
 | Phase 5 실패 | QA 없이 진행, 최종 보고에 "QA 미수행" 명시 |
@@ -141,7 +163,8 @@ Agent(
 ```
 사용자 요청
     → _workspace/00_input.md
-    → db-designer: _workspace/02_db_design.md
+    → db-designer:        _workspace/02_db_design.md
+    → db-migrator:        _workspace/02_migrate_result.md (postgres 적용)
     → backend-scaffolder: _workspace/03_backend_spec.md + BE 소스
     → frontend-scaffolder: _workspace/03_frontend_spec.md + FE 소스
     → qa-reviewer: _workspace/04_qa_report.md
@@ -155,10 +178,11 @@ Agent(
 1. 사용자: "order 주문 목록 API와 어드민 페이지 만들어줘"
 2. Phase 1: `_workspace/00_input.md` 생성 (module: order, 기능: 목록 조회, 레이어: ALL)
 3. Phase 2: `OP_ORD_BASE` DDL 설계 → `_workspace/02_db_design.md`
-4. Phase 3: `OpOrdBase` Entity, `OrderListService`, `OrderController` 등 BE 레이어 생성
-5. Phase 4: `order.types.ts`, `order.api.ts`, `useAdminOrderList.ts`, `OrderListTable.tsx`, `page.tsx` 생성
-6. Phase 5: DTO shape vs 타입 비교 → `_workspace/04_qa_report.md`
-7. Phase 6: 결과 요약, 생성 파일 목록, QA 이슈 보고
+4. Phase 2.5: MCP postgres로 테이블 생성 → `_workspace/02_migrate_result.md`
+5. Phase 3: `OpOrdBase` Entity, `OrderListService`, `OrderController` 등 BE 레이어 생성
+6. Phase 4: `order.types.ts`, `order.api.ts`, `useAdminOrderList.ts`, `OrderListTable.tsx`, `page.tsx` 생성
+7. Phase 5: DTO shape vs 타입 비교 → `_workspace/04_qa_report.md`
+8. Phase 6: 결과 요약, 생성 파일 목록, QA 이슈 보고
 
 ### 에러 흐름
 

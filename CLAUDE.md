@@ -114,3 +114,4 @@ NEXT_PUBLIC_API_URL=http://localhost:8080
 | 날짜 | 변경 내용 | 대상 | 사유 |
 |------|----------|------|------|
 | 2026-06-02 | 초기 구성 | 전체 | 풀스택 모듈 개발 반복 패턴 자동화 |
+| 2026-06-02 | db-migrator, code-reviewer 에이전트 추가 / db-migrate, code-review 스킬 추가 / module-scaffold에 Phase 2.5 추가 | agents/, skills/ | DDL postgres 자동 적용 + 이커머스 관점 코드 리뷰 자동화 |
