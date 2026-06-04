@@ -24,10 +24,10 @@ public class SupabaseStorageService {
     private final WebClient supabaseWebClient;
     private final SupabaseProperties properties;
 
-    public String upload(MultipartFile file, String goodsNo) {
+    public String upload(MultipartFile file, String pathKey) {
         String originalFilename = file.getOriginalFilename() != null ? file.getOriginalFilename() : "image";
         String filename = UUID.randomUUID() + "_" + originalFilename;
-        String path = String.join("/", goodsNo, filename);
+        String path = String.join("/", pathKey, filename);
 
         byte[] bytes;
         try {

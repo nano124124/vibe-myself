@@ -1,6 +1,6 @@
 'use client'
 
-import { useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 interface GoodsImageInputProps {
   files: File[]
@@ -11,6 +11,13 @@ const MAX_IMAGES = 5
 
 const GoodsImageInput = ({ files, onChange }: GoodsImageInputProps) => {
   const inputRef = useRef<HTMLInputElement>(null)
+  const [objectUrls, setObjectUrls] = useState<string[]>([])
+
+  useEffect(() => {
+    const urls = files.map(file => URL.createObjectURL(file))
+    setObjectUrls(urls)
+    return () => urls.forEach(url => URL.revokeObjectURL(url))
+  }, [files])
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selected = Array.from(e.target.files ?? [])
@@ -60,7 +67,7 @@ const GoodsImageInput = ({ files, onChange }: GoodsImageInputProps) => {
               </span>
             )}
             <img
-              src={URL.createObjectURL(file)}
+              src={objectUrls[i]}
               alt={file.name}
               className="h-24 w-24 rounded border border-slate-200 object-cover"
             />

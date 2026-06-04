@@ -16,5 +16,4 @@ public enum MemberStatus {
     MemberStatus(String code) {
         this.code = code;
     }
-
 }

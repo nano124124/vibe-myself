@@ -68,12 +68,14 @@
         SELECT BRAND_NO, BRAND_NM, BRAND_IMG_URL, USE_YN
         FROM PR_BRAND_BASE
         WHERE BRAND_NO = #{brandNo}
+          AND USE_YN = 'Y'
     </select>
 
     <select id="selectDlvPolicyByNo" resultMap="dlvPolicyResultMap">
         SELECT DLV_POLICY_NO, DLV_POLICY_NM, DLV_TP_CD, DLV_AMT, FREE_COND_AMT, RTN_DLV_AMT, USE_YN
         FROM PR_DLV_POLICY
         WHERE DLV_POLICY_NO = #{dlvPolicyNo}
+          AND USE_YN = 'Y'
     </select>
 
     <select id="selectOptGrpByCd" resultMap="optGrpResultMap">
@@ -89,10 +91,20 @@
           AND OPT_ITM_CD = #{optItmCd}
     </select>
 
+    <select id="nextGoodsNo" resultType="String">
+        SELECT 'G' || LPAD(CAST(nextval('pr_goods_base_goods_no_seq') AS TEXT), 6, '0')
+    </select>
+
+    <select id="countValidOptItmPairs" resultType="int">
+        SELECT COUNT(*)
+        FROM PR_OPT_ITM
+        WHERE (OPT_GRP_CD, OPT_ITM_CD) IN
+        <foreach collection="pairs" item="p" open="(" close=")" separator=",">
+            (#{p.optGrpCd}, #{p.optItmCd})
+        </foreach>
+    </select>
+
     <insert id="insertGoods" parameterType="com.vibemyself.entity.PrGoodsBase">
-        <selectKey keyProperty="goodsNo" resultType="String" order="BEFORE">
-            SELECT 'G' || LPAD(CAST(nextval('pr_goods_base_goods_no_seq') AS TEXT), 6, '0')
-        </selectKey>
         INSERT INTO PR_GOODS_BASE (
             GOODS_NO, GOODS_NM, GOODS_TP_CD,
             CTG_NO, BRAND_NO, SALE_STAT_CD, DLV_POLICY_NO, GOODS_DESC,
@@ -149,13 +161,13 @@
             c.CTG_NM,
             b.BRAND_NM,
             p.SALE_PRC,
-            (SELECT IMG_URL FROM PR_GOODS_IMG
-             WHERE GOODS_NO = g.GOODS_NO AND SORT_ORD = 1 LIMIT 1) AS THUMB_IMG_URL,
+            gi.IMG_URL AS THUMB_IMG_URL,
             g.REG_DTM
         FROM PR_GOODS_BASE g
         JOIN PR_CTG_BASE c ON c.CTG_NO = g.CTG_NO
         LEFT JOIN PR_BRAND_BASE b ON b.BRAND_NO = g.BRAND_NO
         JOIN PR_GOODS_PRC p ON p.GOODS_NO = g.GOODS_NO AND p.APLY_TO_DT = '99991231'
+        LEFT JOIN PR_GOODS_IMG gi ON gi.GOODS_NO = g.GOODS_NO AND gi.SORT_ORD = 1
         <where>
             <if test="goodsNm != null and goodsNm != ''">
                 AND g.GOODS_NM LIKE CONCAT('%', #{goodsNm}, '%')

@@ -2,6 +2,7 @@ package com.vibemyself.mapper.goods;
 
 import com.vibemyself.dto.goods.GoodsListItemResponse;
 import com.vibemyself.dto.goods.GoodsListRequest;
+import com.vibemyself.dto.goods.UnitOptRequest;
 import com.vibemyself.entity.PrBrandBase;
 import com.vibemyself.entity.PrDlvPolicy;
 import com.vibemyself.entity.PrGoodsBase;
@@ -34,6 +35,10 @@ public interface GoodsMapper {
                                @Param("optItmCd") String optItmCd);
 
     List<PrOptItm> selectOptItmsByGrpCd(String optGrpCd);
+
+    String nextGoodsNo();
+
+    int countValidOptItmPairs(@Param("pairs") List<UnitOptRequest> pairs);
 
     void insertGoods(PrGoodsBase goods);
 
